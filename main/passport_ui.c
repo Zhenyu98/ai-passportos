@@ -995,6 +995,10 @@ void passport_ui_configuration(const char *address,const char *password) {
     else setup_web[0]=0;
     if(have_model && last_model.page==PASSPORT_PAGE_MUSE_SETUP) rendered=false;
 }
+void passport_ui_hotspot(const char *ssid) {
+    snprintf(setup_web,sizeof setup_web,"热点：%.15s\n手机连上后自动弹出\n或打开 192.168.4.1",ssid?ssid:"");
+    if(have_model && last_model.page==PASSPORT_PAGE_MUSE_SETUP) rendered=false;
+}
 size_t passport_ui_page_buffers(void) {return 0;}
 void passport_ui_destroy(void) {
     clear_page();

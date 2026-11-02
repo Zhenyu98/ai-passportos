@@ -407,6 +407,12 @@ int main(int argc,char **argv) {
     assert(has_text(lv_screen_active(),"确认清除 Muse 配对"));
     lv_refr_now(display);dump(argv[1],"muse-repair-confirm");
     model.setup_confirm=false;passport_ui_configuration(NULL,NULL);
+    /* Offline Muse builds fall back to the badge's own hotspot. */
+    passport_ui_hotspot("Badge-1A2B");
+    assert(passport_ui_render(&model,&record,75,true,1761004800));
+    assert(has_text(lv_screen_active(),"热点：Badge-1A2B\n手机连上后自动弹出\n或打开 192.168.4.1"));
+    lv_refr_now(display);dump(argv[1],"muse-hotspot");
+    passport_ui_configuration(NULL,NULL);
     /* A short scripted run documents the in-game view, not just its title overlay. */
     model.page=PASSPORT_PAGE_GAME;
     assert(passport_ui_render(&model,&record,-1,false,0));

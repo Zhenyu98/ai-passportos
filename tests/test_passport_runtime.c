@@ -17,6 +17,7 @@ void passport_agent_set_visible(bool value) {(void)value;}
 void passport_ui_agent_snapshot(const passport_agent_model_t *v) {(void)v;}
 void passport_ui_agent_scroll(int direction) {(void)direction;}
 void passport_ui_configuration(const char *address,const char *password) {(void)address;(void)password;}
+void passport_ui_hotspot(const char *ssid) {(void)ssid;}
 bool passport_config_password(char *out,size_t size) {(void)out;(void)size;return false;}
 
 typedef struct {unsigned capacity,size,count,head;unsigned char *data;} fake_queue_t;

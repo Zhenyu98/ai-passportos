@@ -189,6 +189,12 @@ python tools\configure_passport_muse.py --port COM7 --token-file build\muse-toke
 或 Origin。访问码每次重新生成、不进入日志，服务关闭后失效。HTTP Basic 凭据通过本地
 HTTP 传输，因此应在可信局域网使用。
 
+没有网络时（还没写 token、没有配对或不在信号范围内），同一选项会改为开启工牌自己的
+开放热点 `Badge-XXXX`，也就是[使用说明](passport-os-v0.1-user-guide.zh_CN.md)里的引导页。
+屏幕显示热点名和 `192.168.4.1`。固件在 SDK 已运行的 Wi-Fi 联网接口旁临时加开热点，
+五分钟后恢复为仅联网模式，蓝牙配对和 SDK 的 Wi-Fi 不受影响。若工牌配对过但原网络不在
+范围内，联网接口会在后台继续重试，可能让热点信道短暂切换。
+
 工牌第一次拿到地址后启动 SNTP，服务器依次为 `ntp.aliyun.com`、`cn.pool.ntp.org`
 和 `pool.ntp.org`。首次同步成功后时钟即视为有效，之后 lwIP 每小时重新对时。在此之前
 仍可用 USB `time` 命令或配置页手动校时。
@@ -273,7 +279,7 @@ HTTP 传输，因此应在可信局域网使用。
 - 加密控制会话和发往 Muse 的流式语音笔记。
 - 设备上的文字回复、滚动翻阅、最近结果页和八条持久本地笔记。
 - 四个经过校验的设备工具：状态、亮度、本地笔记和页面导航。
-- AI PassportOS 原有的资料、图片、头像和游戏功能，以及复用 Muse 已加入网络的 Wi-Fi 配置页。
+- AI PassportOS 原有的资料、图片、头像和游戏功能，以及复用 Muse 已加入网络的 Wi-Fi 配置页；离线时改用热点。
 
 本接入不提供：
 
@@ -310,5 +316,7 @@ HTTP 传输，因此应在可信局域网使用。
 
 ## 相关文档
 
+- [Passport Muse 设计](../superpowers/specs/2026-10-23-passport-muse-design.zh_CN.md)与[实施计划](../superpowers/plans/2026-10-23-passport-muse.zh_CN.md)。
+- [AI PassportOS v0.1 使用说明](passport-os-v0.1-user-guide.zh_CN.md)：共享应用的按键、资料、图片和 USB 协议。
 - [固件布局](../development/engineering/firmware-layout.zh_CN.md)：分区地址、合并镜像与已存数据策略。
 - [构建与测试](../development/engineering/build-and-test.zh_CN.md)：默认固件的校验命令。

@@ -288,6 +288,15 @@ authorization. Requests with another Host or Origin are refused. The code is
 new for each session, is not logged, and stops working when the server closes.
 HTTP Basic authorization runs over local HTTP; use a trusted LAN.
 
+Without a network (no SDK token yet, not paired, or out of range) the same
+choice falls back to the badge's own open hotspot `Badge-XXXX`, the captive
+portal described in the [user guide](passport-os-v0.1-user-guide.md). The
+screen shows the hotspot name and `192.168.4.1`. The firmware adds the access
+point beside the station interface the SDK already runs, then returns to
+station-only mode after five minutes; BLE pairing and the SDK's Wi-Fi stay
+untouched. If the badge was paired but its network is out of range, the station
+keeps retrying in the background and can briefly move the hotspot channel.
+
 After the badge first gets an address it starts SNTP with `ntp.aliyun.com`,
 `cn.pool.ntp.org` and `pool.ntp.org`. The clock becomes valid on the first
 successful sync and lwIP renews it hourly. A USB `time` command or the
@@ -419,7 +428,8 @@ Provided by this integration:
 - Four validated device tools for status, brightness, local notes and page
   navigation.
 - The profile, picture, avatar and game features of AI PassportOS, and a
-  Wi-Fi configuration page served over the network Muse already joined.
+  Wi-Fi configuration page served over the network Muse already joined, with a
+  hotspot fallback while offline.
 
 Not provided by this integration:
 
@@ -475,6 +485,9 @@ Unverified here:
 
 ## Related documents
 
+- [Passport Muse design](../superpowers/specs/2026-10-23-passport-muse-design.md)
+  and [implementation plan](../superpowers/plans/2026-10-23-passport-muse.md).
+- [AI PassportOS v0.1 user guide](passport-os-v0.1-user-guide.md) for the
   controls, profile, picture and USB protocol of the shared application.
 - [Firmware layout](../development/engineering/firmware-layout.md) for
   partition addresses, merged images and stored-data policy.

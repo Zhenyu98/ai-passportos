@@ -71,16 +71,19 @@ UP/DOWN move, OK jumps.
 | Network time | The Muse firmware sets the clock from NTP as soon as Wi-Fi is up |
 | Custom character | Hatch a character with Codex's `$hatch-pet` and convert it with one command ([skill](skills/passport-pet-avatar/SKILL.md)) |
 
-## Two firmware builds
+## Works without Muse
 
-| | Default firmware | Muse firmware |
+The released firmware includes Muse but does not depend on it. With no token,
+no pairing or no network, **Open profile configuration** makes the badge start
+its own hotspot, so you can edit your profile, avatar and contact card from a phone.
+
+| | Without Muse | Muse paired and online |
 | --- | --- | --- |
-| Toolchain | ESP-IDF 5.5.3, repository root | ESP-IDF 6.0.1, `muse/` |
-| Agent page | Explains that the Muse firmware is required | Muse pairing, voice notes, replies |
-| Profile editing | Open hotspot `Badge-XXXX` | LAN page with a one-time access code |
+| Profile, avatar, contact card | Phone joins the badge's hotspot `Badge-XXXX` | Web page on the same network with a temporary access code |
+| Muse AI assistant | Not available | Push to talk, reply previews, local notes |
+| Clock | Set from the phone when you save the profile | Synced automatically once online |
 
-Both keep the profile, images and settings in the same NVS records and Flash
-partition, so switching firmware with a segmented flash keeps your data.
+The identity card, contact QR card and mini game work either way.
 
 ## Quick start
 
@@ -92,13 +95,18 @@ partition, so switching firmware with a segmented flash keeps your data.
    python -m esptool --chip esp32c3 -p <PORT> write-flash 0x0 FoloToy-AI-Passport-full.bin
    ```
 
-3. Hold OK for two seconds on the identity card and choose **Wi-Fi config**. On
-   the default firmware the phone joins the `Badge-XXXX` hotspot; on the Muse
-   firmware, pair in the Muse app first, then choose **Open profile
-   configuration**. Set your profile, avatar and QR image from that page.
+3. Hold OK for two seconds on the identity card, choose **Wi-Fi config**, then
+   **Open profile configuration**:
+   - **Offline**: the screen shows the hotspot name `Badge-XXXX`. Join it on your
+     phone (no password) and the setup page pops up; otherwise open `http://192.168.4.1/`.
+   - **Online through Muse**: the screen shows an address, the user name
+     `passport` and a temporary access code; open the address on the same network.
 
-Building the Muse firmware, setting the Muse SDK token and pairing are covered
-step by step in the [Muse integration guide](docs/assets/passport-muse-integration.md).
+   Set your profile, avatar and contact card from that page; the badge updates
+   right away. The page closes five minutes after it opens.
+
+To use the Muse AI assistant, write your own token and pair in the Muse app as
+described in the [Muse integration guide](docs/assets/passport-muse-integration.md).
 Button behaviour and the USB protocol are in the
 [user guide](docs/assets/passport-os-v0.1-user-guide.md).
 

@@ -13,6 +13,7 @@ void passport_ui_acknowledge(void);
 void passport_ui_agent_snapshot(const passport_agent_model_t *);
 void passport_ui_agent_scroll(int direction);
 void passport_ui_configuration(const char *address,const char *password);
+void passport_ui_hotspot(const char *ssid);
 /* Raw key edges for the game page. Touches only game state (no LVGL), so the
  * UI owner task may call it without holding the LVGL lock. */
 void passport_ui_game_key(passport_key_t key,passport_key_event_t event);

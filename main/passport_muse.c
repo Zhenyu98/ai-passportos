@@ -90,6 +90,7 @@ bool passport_usb_external_line(const char *line,size_t length) {
 }
 int passport_agent_network_address(char *out,size_t cap) {
     muse_wifi_status_t status;muse_wifi_status(&status);
-    if(status.state!=MUSE_WIFI_CONNECTED || !status.ip[0]) return -1;
+    /* Offline (no token, unpaired or out of range): use the badge's own hotspot. */
+    if(status.state!=MUSE_WIFI_CONNECTED || !status.ip[0]) {snprintf(out,cap,"192.168.4.1");return 0;}
     snprintf(out,cap,"%s",status.ip);return 1;
 }

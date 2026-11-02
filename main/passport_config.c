@@ -436,7 +436,17 @@ static void config_task(void *user) {
     wifi.ap.max_connection = 2;
     wifi.ap.pmf_cfg.required = false;
     esp_err_t error = ESP_OK;
-    if(!api->shared_station) {
+    /* The Muse SDK starts the radio as a station at boot, token or not. Add a
+     * temporary AP beside it instead of re-initialising (and later tearing
+     * down) a driver and event loop the SDK owns. */
+    static esp_netif_t *borrowed_ap;
+    wifi_mode_t borrowed_mode = WIFI_MODE_NULL;
+    bool borrowed = !api->shared_station && esp_wifi_get_mode(&borrowed_mode) == ESP_OK;
+    if(borrowed) {
+        if (!borrowed_ap) borrowed_ap = esp_netif_create_default_wifi_ap();
+        error = borrowed_ap ? esp_wifi_set_mode(WIFI_MODE_APSTA) : ESP_ERR_NO_MEM;
+        if (error == ESP_OK) error = esp_wifi_set_config(WIFI_IF_AP, &wifi);
+    } else if(!api->shared_station) {
     error = esp_netif_init();
     if (error == ESP_OK) error = esp_event_loop_create_default();
     if (error == ESP_OK) netif = esp_netif_create_default_wifi_ap();
@@ -467,7 +477,9 @@ static void config_task(void *user) {
     }
     dns_running = false;
     vTaskDelay(pdMS_TO_TICKS(400)); /* Let the DNS task close its socket. */
-    if(!api->shared_station) {
+    if(borrowed) {
+        esp_wifi_set_mode(borrowed_mode == WIFI_MODE_APSTA ? WIFI_MODE_STA : borrowed_mode);
+    } else if(!api->shared_station) {
         esp_wifi_stop();
         esp_wifi_deinit();
         if (netif) esp_netif_destroy(netif);

@@ -50,7 +50,9 @@ the build, token and pairing steps.
 On Muse firmware this entry first opens Network and Muse. It provides a physical
 re-pairing confirmation even offline. Its profile editor uses the current LAN
 and a temporary code displayed on the badge; see the [Muse guide](passport-muse-integration.md).
-The hotspot instructions below apply to the default 5.5.3 firmware.
+Without a network (no token, not paired or out of range), choosing **Open profile
+configuration** there starts the hotspot below instead. The default 5.5.3
+firmware starts it directly from `Wi-Fi Config`.
 
 Select `Wi-Fi Config` in the hidden menu (hold OK for two seconds on the badge).
 The badge opens the hotspot `Badge-XXXX` (open, five-minute timeout), answers

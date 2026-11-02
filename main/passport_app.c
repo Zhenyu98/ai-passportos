@@ -200,10 +200,6 @@ __attribute__((weak)) int passport_agent_network_address(char *out,size_t cap) {
 static void start_config(void) {
     if(passport_config_running()) return;
     char address[32];int shared=passport_agent_network_address(address,sizeof address);
-    if(shared<0) {
-        if(bsp_lvgl_lock(100)) {passport_ui_status("请先在 Muse 手机应用配置网络");bsp_lvgl_unlock();}
-        return;
-    }
     passport_config_api_t callbacks={.submit_profile=wifi_submit_profile,
         .submit_time=wifi_submit_time,.on_event=config_event,
         .snapshot=ui_record.profile,.shared_station=shared>0};
@@ -219,7 +215,7 @@ static void start_config(void) {
         if(shared>0) {
             char password[13];
             if(passport_config_password(password,sizeof password)) passport_ui_configuration(address,password);
-        } else passport_ui_status(line);
+        } else {passport_ui_status(line);passport_ui_hotspot(ssid);}
         bsp_lvgl_unlock();
     }
 }

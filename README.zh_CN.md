@@ -62,15 +62,17 @@ Muse 也能反过来操作工牌，但只开放了四件事：查状态、调亮
 | 网络对时 | Muse 固件连上 Wi-Fi 后自动用 NTP 校准时钟 |
 | 自定义角色 | 用 Codex 的 `$hatch-pet` 孵化角色，一条命令转换（[技能说明](skills/passport-pet-avatar/SKILL.zh_CN.md)） |
 
-## 两种固件
+## 没有 Muse 也能用
 
-| | 默认固件 | Muse 固件 |
+发布的固件带 Muse 功能，但不依赖它。没写 token、没配对，或者暂时连不上网时，「打开资料配置页面」会让工牌自己开一个热点，用手机就能改资料、换头像、传名片。
+
+| | 没有 Muse | 配好 Muse 并联网 |
 | --- | --- | --- |
-| 工具链 | ESP-IDF 5.5.3，仓库根目录 | ESP-IDF 6.0.1，`muse/` |
-| 智能体页 | 提示需要 Muse 固件 | Muse 配对、语音笔记、回复 |
-| 资料编辑 | 开放热点 `Badge-XXXX` | 局域网页面加一次性访问码 |
+| 改资料、头像、名片 | 手机连工牌的热点 `Badge-XXXX` | 同一局域网打开网页，输入屏幕上的临时访问码 |
+| Muse AI 助理 | 不可用 | 按 OK 说话，显示回复预览，可存笔记 |
+| 时钟 | 在配置页保存资料时用手机时间对准 | 联网后自动对时 |
 
-两版固件共用同一套资料存储，用分段刷写换固件时，资料、图片和设置都不会丢。
+身份卡、名片二维码和小游戏随时都能用。
 
 ## 快速开始
 
@@ -81,9 +83,13 @@ Muse 也能反过来操作工牌，但只开放了四件事：查状态、调亮
    python -m esptool --chip esp32c3 -p <端口> write-flash 0x0 FoloToy-AI-Passport-full.bin
    ```
 
-3. 在身份卡页长按 OK 两秒，选「Wi-Fi 配置」。默认固件会开一个 `Badge-XXXX` 热点，手机连上即可；Muse 固件要先在 Muse 应用里配对，再选「打开资料配置页面」。资料、头像和名片图都在这个页面里改。
+3. 在身份卡页长按 OK 两秒，选「Wi-Fi 配置」，再选「打开资料配置页面」：
+   - **没联网时**：屏幕显示热点名 `Badge-XXXX`。手机连上这个热点（无密码），设置页会自动弹出；没弹出就打开 `http://192.168.4.1/`。
+   - **已经通过 Muse 联网时**：屏幕显示网址、用户名 `passport` 和临时访问码，用同一网络的手机或电脑打开网址登录。
 
-编译 Muse 固件、设置 Muse SDK token 和配对，见 [Muse 接入指南](docs/assets/passport-muse-integration.zh_CN.md)。按键操作和 USB 协议见 [使用说明](docs/assets/passport-os-v0.1-user-guide.zh_CN.md)。
+   资料、头像和名片图都在这个页面里改，保存后工牌立即更新。页面开放五分钟后自动关闭，需要时再打开。
+
+想用 Muse AI 助理，按 [Muse 接入指南](docs/assets/passport-muse-integration.zh_CN.md) 写入你自己的 token 并在 Muse 应用里配对。按键操作和 USB 协议见 [使用说明](docs/assets/passport-os-v0.1-user-guide.zh_CN.md)。
 
 ## AI 助手一键配置
 

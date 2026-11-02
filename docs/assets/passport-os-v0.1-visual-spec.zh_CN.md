@@ -1,6 +1,6 @@
 <p align="right"><strong>简体中文</strong> · <a href="passport-os-v0.1-visual-spec.md">English</a></p>
 
-# Passport OS 视觉规范
+# AI PassportOS 视觉规范
 
 给后续修改工牌 UI 的人参考。新增界面请遵循这些规范；布局几何集中在
 `main/passport_ui.c` 顶部的 `#define` 常量（视觉标记）里，改一个布局值只动一处。

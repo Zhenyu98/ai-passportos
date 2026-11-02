@@ -23,7 +23,7 @@
 
 ## 图片（images）
 
-Passport OS 使用 `fonts/` 中生成的 Noto Sans SC 16/20 像素、4 bpp 子集，
+AI PassportOS 使用 `fonts/` 中生成的 Noto Sans SC 16/20 像素、4 bpp 子集，
 同目录保留 OFL 许可。源文件固定为 Google Fonts 提交
 `2894aab31764f10f29c421bdfd2340d3b382d384`，SHA-256 为
 `a3041811a78c361b1de50f953c805e0244951c21c5bd412f7232ef0d899af0da`。

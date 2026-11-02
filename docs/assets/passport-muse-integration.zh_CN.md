@@ -2,9 +2,9 @@
 
 # Passport 接入 Muse
 
-Passport OS 也可以作为独立的 ESP-IDF 6.0.1 固件运行在 Muse Gadget SDK 上。本文说明该固件增加了什么、如何构建、如何设置 Muse SDK token、如何在 Muse 手机应用中配对、Muse 可以调用哪些设备工具、数据保存在哪里，以及官方 ESP32-C3 适配没有提供哪些能力。
+AI PassportOS 也可以作为独立的 ESP-IDF 6.0.1 固件运行在 Muse Gadget SDK 上。本文说明该固件增加了什么、如何构建、如何设置 Muse SDK token、如何在 Muse 手机应用中配对、Muse 可以调用哪些设备工具、数据保存在哪里，以及官方 ESP32-C3 适配没有提供哪些能力。
 
-设备界面与 Passport OS 其余部分一样保持简体中文；本文直接使用屏幕上的中文标签。下文的命令是受支持的工作流，本文不是构建或真机测试报告。构建、主机测试、真机测试和未验证项应分别报告。
+设备界面与 AI PassportOS 其余部分一样保持简体中文；本文直接使用屏幕上的中文标签。下文的命令是受支持的工作流，本文不是构建或真机测试报告。构建、主机测试、真机测试和未验证项应分别报告。
 
 ## Muse 固件新增的能力
 
@@ -273,7 +273,7 @@ HTTP 传输，因此应在可信局域网使用。
 - 加密控制会话和发往 Muse 的流式语音笔记。
 - 设备上的文字回复、滚动翻阅、最近结果页和八条持久本地笔记。
 - 四个经过校验的设备工具：状态、亮度、本地笔记和页面导航。
-- Passport OS 原有的资料、图片、头像和游戏功能，以及复用 Muse 已加入网络的 Wi-Fi 配置页。
+- AI PassportOS 原有的资料、图片、头像和游戏功能，以及复用 Muse 已加入网络的 Wi-Fi 配置页。
 
 本接入不提供：
 
@@ -310,6 +310,5 @@ HTTP 传输，因此应在可信局域网使用。
 
 ## 相关文档
 
-- [Passport OS v0.1 使用说明](passport-os-v0.1-user-guide.zh_CN.md)：共享应用的按键、资料、图片和 USB 协议。
 - [固件布局](../development/engineering/firmware-layout.zh_CN.md)：分区地址、合并镜像与已存数据策略。
 - [构建与测试](../development/engineering/build-and-test.zh_CN.md)：默认固件的校验命令。

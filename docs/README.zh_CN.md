@@ -203,13 +203,13 @@ LICENSE                  仓库许可证
 | [AI 技能](../skills/README.zh_CN.md) | 开发、环境准备、构建、真机测试与故障诊断 |
 | [硬件资料](hardware-design/README.zh_CN.md) | 板卡事实、接口边界、验收清单与排障 |
 | [中文字体](development/engineering/lvgl-chinese-fonts.zh_CN.md) | 字形覆盖、控件字体选择，以及中文空白排查 |
-| [Passport OS v0.1 设计](assets/passport-os-v0.1-design.zh_CN.md) · [实施计划](assets/passport-os-v0.1-plan.zh_CN.md) | 已批准的身份卡设计与待审阅的实施、测试顺序 |
-| [Passport OS v0.1 使用说明](assets/passport-os-v0.1-user-guide.zh_CN.md) | 徽章/智能体/隐藏菜单按键、USB 配置、构建复现和真机验收 |
+| [AI PassportOS v0.1 设计](assets/passport-os-v0.1-design.zh_CN.md) · [实施计划](assets/passport-os-v0.1-plan.zh_CN.md) | 已批准的身份卡设计与待审阅的实施、测试顺序 |
+| [AI PassportOS v0.1 使用说明](assets/passport-os-v0.1-user-guide.zh_CN.md) | 徽章/智能体/隐藏菜单按键、USB 配置、构建复现和真机验收 |
 | [Passport Muse 接入指南](assets/passport-muse-integration.zh_CN.md) | Muse 固件构建、SDK token、手机配对、设备工具与能力边界 |
 | [Passport Agent 语音](assets/passport-agent-voice.zh_CN.md) | 原生状态动画、流式朗读、可选 Windows 桥接与 USB 配置 |
-| [Passport OS v0.1 视觉规范](assets/passport-os-v0.1-visual-spec.zh_CN.md) | 配色/字体/布局标记、按键映射和动画规则 |
-| [Passport OS 角色帧动画](assets/passport-motion.zh_CN.md) | 连续帧、动态/静态选择、内存与验证 |
-| [Passport OS 本地版本](assets/passport-os-v0.1-versions.zh_CN.md) | 已验证基线、开发检查点和验证状态 |
+| [AI PassportOS v0.1 视觉规范](assets/passport-os-v0.1-visual-spec.zh_CN.md) | 配色/字体/布局标记、按键映射和动画规则 |
+| [AI PassportOS 角色帧动画](assets/passport-motion.zh_CN.md) | 连续帧、动态/静态选择、内存与验证 |
+| [AI PassportOS 本地版本](assets/passport-os-v0.1-versions.zh_CN.md) | 已验证基线、开发检查点和验证状态 |
 | [设置保存修复](assets/passport-settings-save-fix.zh_CN.md) | 中文字形覆盖、统一配置校验与回归检查 |
 | [Wi-Fi 配网](development/engineering/wifi-provisioning.zh_CN.md) | 蓝牙配网实现参考与配套小程序 |
 | [社区作品与经验](reference/README.zh_CN.md) | `docs/reference/<username>/` 下的应用档案和可复用知识 |

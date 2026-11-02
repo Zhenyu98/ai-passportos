@@ -2,13 +2,13 @@
 
 # Passport Muse integration
 
-Passport OS can also run on the Muse Gadget SDK as a separate ESP-IDF 6.0.1
+AI PassportOS can also run on the Muse Gadget SDK as a separate ESP-IDF 6.0.1
 firmware. This guide covers what that firmware adds, how to build it, how to
 set the Muse SDK token, how to pair the badge in the Muse app, which device
 tools Muse may call, where data is stored, and which capabilities the official
 ESP32-C3 port does not provide.
 
-The device UI stays Simplified Chinese, as in the rest of Passport OS; this page
+The device UI stays Simplified Chinese, as in the rest of AI PassportOS; this page
 translates the labels it refers to. The commands below describe the supported
 workflow; this page is not a build or device-test report. Report Build, Host
 tests, Device tests and Unverified results separately.
@@ -418,7 +418,7 @@ Provided by this integration:
   persistent local notes.
 - Four validated device tools for status, brightness, local notes and page
   navigation.
-- The profile, picture, avatar and game features of Passport OS, and a
+- The profile, picture, avatar and game features of AI PassportOS, and a
   Wi-Fi configuration page served over the network Muse already joined.
 
 Not provided by this integration:
@@ -475,7 +475,6 @@ Unverified here:
 
 ## Related documents
 
-- [Passport OS v0.1 user guide](passport-os-v0.1-user-guide.md) for the
   controls, profile, picture and USB protocol of the shared application.
 - [Firmware layout](../development/engineering/firmware-layout.md) for
   partition addresses, merged images and stored-data policy.

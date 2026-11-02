@@ -1,6 +1,6 @@
 [English](passport-os-v0.1-versions.md) · **简体中文**
 
-# Passport OS 本地版本
+# AI PassportOS 本地版本
 
 当前分支为 `feature/passport-os-v0.1`。源码按完整改动提交；生成固件、私人
 资料、照片、个人字库和原始日志保留在忽略的 `build/` 或 `private/`。

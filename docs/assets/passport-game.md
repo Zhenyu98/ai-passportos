@@ -1,12 +1,12 @@
 [简体中文](passport-game.zh_CN.md) · **English**
 
-# Passport OS mini game
+# AI PassportOS mini game
 
 Date: 2026-10-23. Status: full side-scrolling platformer on `feature/passport-os-v0.1`, with collision and manual-control improvements; the original isolated branch `feature/passport-game` is history.
 
 ## Purpose
 
-A Super-Mario-Bros-style side-scrolling platformer as a menu entry on the Passport OS badge. Offline, single-player, three buttons, no Wi-Fi/USB/audio dependency. The design references the classic 1-1 level shape — question blocks, brick rows, pipes, pits, twin stair pyramids, a flagpole and a castle — with an original layout, art and tuning.
+A Super-Mario-Bros-style side-scrolling platformer as a menu entry on the AI PassportOS badge. Offline, single-player, three buttons, no Wi-Fi/USB/audio dependency. The design references the classic 1-1 level shape — question blocks, brick rows, pipes, pits, twin stair pyramids, a flagpole and a castle — with an original layout, art and tuning.
 
 ## Landscape orientation and controls
 

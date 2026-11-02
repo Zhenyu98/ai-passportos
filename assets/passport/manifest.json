@@ -14,15 +14,15 @@
     "fonts/passport_font_16.c": "bad60894a4c56a340310afa4559d0bb02444fb4a32fce5ddb7e24a7fd20c0694",
     "fonts/passport_font_20.c": "a336436418bdca02c340f96aefd9c36c597676d0ef247c9c27e54966f2a0ac72",
     "images/passport_avatar.c": "49d734ced5345b186019c39a0a1950d5c06bc0b06be5a6060aa750eeba38328f",
-    "images/passport_gallery.c": "2cb99e8dea2fa5b52526e8e994e5b19cb35b804396ed72cbfca3f04d9de73478",
-    "images/passport_motion.c": "9063537871eef92244f20900992134bd2a8e22b363e0b92ff8b8309bc9378b53",
+    "images/passport_gallery.c": "ba900bc00a2ff425ab9279e73fc829c22a58b463aaded6b0fdec73fe32886de4",
+    "images/passport_motion.c": "9a534e1612cc5a4cd1d9860d13025e30567822c4ea83cd35e7d4d4cfc0e3597b",
     "passport/passport_glyphs.c": "896a7ebc3cf5f2cbbb18f940f89a5cc821dfb7c02f9bd6885b051f8482139f7c",
     "passport/passport_strings.h": "8d52d56944cbba4a1024f4460bffa8db52121d9cafb0b55a19fd367b964fae8b"
   },
   "font_source_revision": "2894aab31764f10f29c421bdfd2340d3b382d384",
   "font_source_sha256": "a3041811a78c361b1de50f953c805e0244951c21c5bd412f7232ef0d899af0da",
   "font_source_url": "https://raw.githubusercontent.com/google/fonts/2894aab31764f10f29c421bdfd2340d3b382d384/ofl/notosanssc/NotoSansSC%5Bwght%5D.ttf",
-  "gallery_scenes": 1,
+  "gallery_scenes": 0,
   "glyphs": [
     32,
     33,

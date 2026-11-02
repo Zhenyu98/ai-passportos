@@ -5,14 +5,14 @@
 ## Copy-paste prompt
 
 ```text
-Read docs/agent-setup.md in https://github.com/Zhenyu98/passport-os and follow it
-to set up the toolchain and build Passport OS. Show me the plan before installing
+Read docs/agent-setup.md in https://github.com/Zhenyu98/ai-passportos and follow it
+to set up the toolchain and build AI PassportOS. Show me the plan before installing
 anything, never flash a device without my approval, and report the build checks.
 ```
 
 ## Goal
 
-Build a verified Passport OS firmware image (default or Muse) on the user's
+Build a verified AI PassportOS firmware image (default or Muse) on the user's
 machine, without touching their device or stored data unless they approve it.
 
 ## Prerequisites

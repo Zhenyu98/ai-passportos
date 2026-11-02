@@ -1,6 +1,6 @@
 [简体中文](passport-os-v0.1-design.zh_CN.md) · **English**
 
-# Passport OS v0.1 design
+# AI PassportOS v0.1 design
 
 Date: 2026-10-20. Status: approved by the user on 2026-10-20; application implementation has not started. See the [implementation plan](passport-os-v0.1-plan.md).
 

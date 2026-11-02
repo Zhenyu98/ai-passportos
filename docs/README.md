@@ -209,13 +209,13 @@ provide reference material. Choose the entry that matches your task.
 | [AI skills](../skills/README.md) | Development, environment setup, builds, device testing, and debugging |
 | [Hardware](hardware-design/README.md) | Board facts, interface boundaries, acceptance checklists, and troubleshooting |
 | [Chinese fonts](development/engineering/lvgl-chinese-fonts.md) | Glyph coverage, widget font selection, and blank-text troubleshooting |
-| [Passport OS v0.1 design](assets/passport-os-v0.1-design.md) · [Implementation plan](assets/passport-os-v0.1-plan.md) | Approved identity-card design and the proposed implementation/test sequence |
-| [Passport OS v0.1 user guide](assets/passport-os-v0.1-user-guide.md) | Badge, assistant and hidden-menu controls, USB configuration, reproduction and device acceptance |
+| [AI PassportOS v0.1 design](assets/passport-os-v0.1-design.md) · [Implementation plan](assets/passport-os-v0.1-plan.md) | Approved identity-card design and the proposed implementation/test sequence |
+| [AI PassportOS v0.1 user guide](assets/passport-os-v0.1-user-guide.md) | Badge, assistant and hidden-menu controls, USB configuration, reproduction and device acceptance |
 | [Passport Muse integration](assets/passport-muse-integration.md) | Muse firmware build, SDK token, phone pairing, device tools and capability boundaries |
 | [Passport Agent voice](assets/passport-agent-voice.md) | Native state animations, streamed speech, optional Windows bridge and USB configuration |
-| [Passport OS v0.1 visual spec](assets/passport-os-v0.1-visual-spec.md) | Color/font/layout tokens, key map and animation rules |
-| [Passport OS character motion](assets/passport-motion.md) | Pre-rendered frames, dynamic/static selection, memory and validation |
-| [Passport OS local versions](assets/passport-os-v0.1-versions.md) | Verified baseline, development checkpoints and validation status |
+| [AI PassportOS v0.1 visual spec](assets/passport-os-v0.1-visual-spec.md) | Color/font/layout tokens, key map and animation rules |
+| [AI PassportOS character motion](assets/passport-motion.md) | Pre-rendered frames, dynamic/static selection, memory and validation |
+| [AI PassportOS local versions](assets/passport-os-v0.1-versions.md) | Verified baseline, development checkpoints and validation status |
 | [Settings save repair](assets/passport-settings-save-fix.md) | Chinese font coverage, shared configuration validation and regression checks |
 | [Wi-Fi provisioning](development/engineering/wifi-provisioning.md) | Bluetooth provisioning reference and companion mini program |
 | [Community projects and experience](reference/README.md) | Playbooks and reusable knowledge under `docs/reference/<username>/` |

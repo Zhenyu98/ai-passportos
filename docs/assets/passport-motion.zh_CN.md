@@ -1,6 +1,6 @@
 **简体中文** · [English](passport-motion.md)
 
-# Passport OS 角色帧动画
+# AI PassportOS 角色帧动画
 
 按已确认的安静风格接入预渲染动画：待机时偶尔呼吸、眨眼，切换按钮时关注目标，
 返回身份卡或头像可见时真实操作成功后轻点头。导航不等待动作完成，新选择会覆盖旧动作。
@@ -13,8 +13,8 @@
 **外滩看夜景 · 动态** 或 **撸猫 · 动态**。选择会把场景编号存入头像槽的头部扇区，重启后仍保留，
 不改资料/NVS 和全屏图片槽。选择其他场景可恢复静态头像。
 
-公共源码构建保留中性三帧临时头像，不分发个人角色素材；未包含个人动画包时，
-配置页不显示动态角色入口。
+公共源码构建自带两场景展示：动态角色和外滩夜景，经作者同意公开。公共构建没有
+静态画廊图片，也没有撸猫场景；个人素材包会在本机补上这些内容。
 
 ## 运行方式与布局
 
@@ -33,7 +33,15 @@
 
 源帧与 `animation-manifest.json` 放在 Git 忽略的 `assets/private/passport-motion/`。
 来源为用户提供的默认像素角色，以及 2026-10-22 用内置 image_gen 生成并确认的动画条。
-不假定拥有个人形象素材的再分发授权。公共资源只含空动画集 `assets/images/passport_motion.c`。
+展示用源素材（仅默认角色和夜景）提交在 `assets/showcase/`，
+`assets/images/passport_motion.c` 由它们生成：
+
+```text
+python tools/build_passport_motion.py --pack assets/showcase/motion --scene-pack assets/showcase/scenes --scene night --public --output <临时目录>
+```
+
+把该目录里的 `images/passport_motion.c` 和 `passport/motion-manifest.json` 复制进
+`assets/`，再更新 `assets/passport/manifest.json` 里的校验值。
 
 在已有个人字库/场景资源目录旁生成动画源码：
 
@@ -63,7 +71,8 @@ Flash 像素净载荷 478,800 字节（467.6 KiB），不分配整帧解码缓�
 `assets/private/passport-scenes/`，来源为用户确认的 2026-10-22 image_gen 夜景/撸猫样片。
 
 主资源生成器支持 `--motion-pack`、`--scene-pack`，个人构建时自动发现本地素材，并在资源清单中记录动画源码。
-个人 LVGL 预览可指定 `--require-motion-scenes 3`，避免未带入资源时测试静默跳过此功能。
+个人 LVGL 预览可指定 `--require-motion-scenes 3`（再加 `--require-agent-name Nora` 检查个人智能体形象），
+避免未带入资源时测试静默跳过此功能。公共展示版用 `--require-motion-scenes 2` 检查。
 
 本次是编译内置动画，PAV1 静态图片仍兼容，不能上传此帧集或 GIF。
 内置场景选择增加 16 字节头部变体：格式为 3，保留字节存场景编号、版本 1 和零，

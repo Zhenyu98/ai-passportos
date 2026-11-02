@@ -1,6 +1,6 @@
 [English](passport-os-v0.1-plan.md) · **简体中文**
 
-# Passport OS v0.1 实施计划
+# AI PassportOS v0.1 实施计划
 
 > **供执行代理使用：** 本会话直接执行时，必须使用 superpowers:executing-plans；若用户选择子代理方式，则使用 superpowers:subagent-driven-development。步骤用复选框跟踪。
 

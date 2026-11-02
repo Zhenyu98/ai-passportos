@@ -114,9 +114,9 @@ def _image_source(frames,width: int,height: int,alpha: bool,temporary: bool) -> 
 
 def _gallery_entries(gallery: Path | None) -> list[tuple[str,Path | None]]:
     """[(title, png path)] scene list embedded as the selectable gallery.
-    Without a pack the public build embeds the procedural default scene."""
+    Without a pack the public build lists only its motion showcase scenes."""
     if gallery is None:
-        return [("默认",None)]
+        return []
     manifest=json.loads((gallery/"manifest.json").read_text(encoding="utf-8"))
     entries=[(scene["title_zh"],gallery/scene["png"]) for scene in manifest["scenes"]]
     if not entries:
@@ -127,6 +127,11 @@ def _gallery_source(entries: list[tuple[str,Path | None]]) -> str:
     from PIL import Image
     lines=['/* Embedded pixel-scene gallery; each scene letterboxes into a badge frame. */',
            '#include "passport_assets.h"']
+    if not entries:  # C has no empty arrays; the count keeps the dummy unused.
+        lines += ["const lv_image_dsc_t passport_gallery_frames[] = {{.data = NULL}};",
+                  "const char *const passport_gallery_names[] = {NULL};",
+                  "const size_t passport_gallery_count = 0;"]
+        return "\n".join(lines)+"\n"
     dscs=[]
     for index,(name,path) in enumerate(entries):
         if path is None:

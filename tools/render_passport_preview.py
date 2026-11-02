@@ -18,6 +18,7 @@ def main():
     parser.add_argument("--assets",type=Path,default=ROOT/"assets")
     parser.add_argument("--profile",type=Path)
     parser.add_argument("--require-motion-scenes",type=int,default=0)
+    parser.add_argument("--require-agent-name",help="Assert the personal agent art, e.g. Nora")
     parser.add_argument("--compiler",default=os.environ.get("CC","cc"))
     parser.add_argument("--lvgl",type=Path,default=ROOT/"managed_components"/"lvgl__lvgl")
     args=parser.parse_args()
@@ -37,6 +38,8 @@ def main():
     env=os.environ.copy()
     if args.require_motion_scenes:
         env["PASSPORT_PREVIEW_REQUIRE_MOTION_SCENES"]=str(args.require_motion_scenes)
+    if args.require_agent_name:
+        env["PASSPORT_PREVIEW_REQUIRE_AGENT_NAME"]=args.require_agent_name
     subprocess.run(command,check=True,timeout=60,env=env)
     if not (args.output/"homepage.rgb565").is_file():
         raise RuntimeError("Current UI fixture did not render the picture/QR acceptance case")

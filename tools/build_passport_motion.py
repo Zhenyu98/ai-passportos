@@ -14,12 +14,15 @@ STATES = ("idle", "focus", "nod")
 WIDTH, HEIGHT = 76, 150
 
 
-def _scene_data(pack: Path | None) -> list[dict]:
+SCENES = (("night",2,"外滩看夜景 · 动态"),("cat",3,"撸猫 · 动态"))
+
+
+def _scene_data(pack: Path | None, keys=("night","cat")) -> list[dict]:
     if pack is None:
         return []
     specs=json.loads((pack/"animation-manifest.json").read_text(encoding="utf-8"))
     result=[]
-    for state,scene_id,label in (("night",2,"外滩看夜景 · 动态"),("cat",3,"撸猫 · 动态")):
+    for state,scene_id,label in (scene for scene in SCENES if scene[0] in keys):
         spec=specs[state]; stage=tuple(spec["stage"]);sprite=tuple(spec["sprite"]);offset=tuple(spec["offset"])
         durations=spec["durations"]
         expected=(216,112) if state=="night" else (76,150)
@@ -58,8 +61,10 @@ def _pixels(image: Image.Image, alpha: bool) -> bytes:
     return bytes(pixels)
 
 
-def generate_motion(pack: Path, output: Path, *, scene_pack: Path | None=None) -> dict:
-    validate_destination(output, True)
+def generate_motion(pack: Path, output: Path, *, scene_pack: Path | None=None,
+                    scene_keys=("night","cat"), public: bool=False) -> dict:
+    """public=True writes the committed showcase (assets/) instead of personal art."""
+    validate_destination(output, not public)
     request = json.loads((pack / "animation-manifest.json").read_text(encoding="utf-8"))
     if request.get("dimensions") != [WIDTH, HEIGHT] or request.get("rows") != list(STATES):
         raise ValueError("Expected 76x150 idle/focus/nod animation pack")
@@ -90,14 +95,15 @@ def generate_motion(pack: Path, output: Path, *, scene_pack: Path | None=None) -
                             "source_sha256": hashlib.sha256(path.read_bytes()).hexdigest()})
     if max(baselines)-min(baselines)>1:
         raise ValueError("Animation foot baseline drift")
-    scenes=_scene_data(scene_pack)
+    scenes=_scene_data(scene_pack,scene_keys)
     # Validate everything before replacing a previously usable generated source.
     all_images=[("RGB565A8",WIDTH,HEIGHT,p) for p in payloads]
     for scene in scenes:
         scene["payloads"]=[_pixels(im,scene["format"]=="RGB565A8") for im in scene["frames"]]
         all_images.extend((scene["format"],im.width,im.height,p) for im,p in zip(scene["frames"],scene["payloads"]))
     unique=list(dict.fromkeys(all_images));indices={image:index for index,image in enumerate(unique)}
-    lines = ['/* Private, pre-rendered motion; no runtime image decoder allocation. */',
+    lines = ['/* Public showcase motion; pre-rendered, no runtime image decoder allocation. */' if public else
+             '/* Private, pre-rendered motion; no runtime image decoder allocation. */',
              '#include "passport_assets.h"']
     for index, (_,_,_,payload) in enumerate(unique):
         lines.append(f"static const uint8_t motion_pixels_{index}[{len(payload)}] = {{")
@@ -126,7 +132,7 @@ def generate_motion(pack: Path, output: Path, *, scene_pack: Path | None=None) -
         lines.append(f'    {{{scene["id"]},{json.dumps(scene["name"],ensure_ascii=False)},scene_{key}_frames,scene_{key}_durations,6,false}},')
     lines.extend(["};",f"const size_t passport_motion_scene_count = {1+len(scenes)};"])
     source = "\n".join(lines) + "\n"
-    manifest = {"schema": 1, "private": True, "format": "RGB565A8", "width": WIDTH,
+    manifest = {"schema": 1, "private": not public, "format": "RGB565A8", "width": WIDTH,
                 "height": HEIGHT, "frame_count": 18, "frame_bytes": WIDTH*HEIGHT*3,
                 "unique_frames": len(unique), "pixel_bytes": sum(len(image[3]) for image in unique), "frames": records,
                 "scene_count":1+len(scenes),"scenes":[{"id":1,"frame_count":18,"format":"RGB565A8"}]+
@@ -145,8 +151,12 @@ def main():
     parser.add_argument("--pack", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--scene-pack",type=Path)
+    parser.add_argument("--scene",action="append",choices=[key for key,_,_ in SCENES],
+                        help="Scene to include from --scene-pack (repeatable; default all)")
+    parser.add_argument("--public",action="store_true",help="Write the committed public showcase")
     args = parser.parse_args()
-    manifest = generate_motion(args.pack, args.output,scene_pack=args.scene_pack)
+    manifest = generate_motion(args.pack, args.output,scene_pack=args.scene_pack,
+                               scene_keys=tuple(args.scene or (key for key,_,_ in SCENES)),public=args.public)
     print(f"Motion assets: {manifest['frame_count']} frames, {manifest['pixel_bytes']} Flash pixel bytes")
 
 

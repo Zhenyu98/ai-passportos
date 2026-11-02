@@ -315,7 +315,9 @@ int main(int argc,char **argv) {
     lv_refr_now(display);check_agent_canvas();dump(argv[1],"agent-reply");
     lv_obj_t *agent_avatar=find_avatar(lv_screen_active());assert(agent_avatar);
     assert(lv_image_get_src(agent_avatar)==passport_agent_avatar_frame(0));
-    if(required) assert(!strcmp(passport_agent_name,"Nora"));
+    /* Public builds carry motion scenes but keep the personal agent art private. */
+    const char *agent_name=getenv("PASSPORT_PREVIEW_REQUIRE_AGENT_NAME");
+    if(agent_name) assert(!strcmp(passport_agent_name,agent_name));
     unsigned agent_timers=timer_count();
     for(unsigned i=0;i<20;i++) strcpy(agent.reply+i*strlen("研究任务记录与结果。\n"),"研究任务记录与结果。\n");
     agent.revision++;passport_ui_agent_snapshot(&agent);

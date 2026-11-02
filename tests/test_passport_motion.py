@@ -112,6 +112,25 @@ class MotionAssetsTest(unittest.TestCase):
             self.assertIn(".w=76,.h=150",source)
             self.assertIn("passport_motion_scene_count = 3",source)
 
+    def test_public_showcase_keeps_only_selected_scenes(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp); self.pack(root)
+            scenes=root/"scenes"; scenes.mkdir(); self.scene_pack(scenes)
+            data=json.loads((scenes/"animation-manifest.json").read_text()); del data["cat"]
+            (scenes/"animation-manifest.json").write_text(json.dumps(data))  # night-only pack
+            result=generate_motion(root,root/"output",scene_pack=scenes,scene_keys=("night",),public=True)
+            self.assertFalse(result["private"])
+            self.assertEqual([s["id"] for s in result["scenes"]],[1,2])
+            source=(root/"output/images/passport_motion.c").read_text(encoding="utf-8")
+            self.assertTrue(source.startswith("/* Public showcase motion"))
+            self.assertIn("passport_motion_scene_count = 2",source)
+
+    def test_committed_public_motion_is_the_two_scene_showcase(self):
+        source=(ROOT/"assets/images/passport_motion.c").read_text(encoding="utf-8")
+        self.assertTrue(source.startswith("/* Public showcase motion"))
+        self.assertIn("passport_motion_scene_count = 2",source)
+        self.assertNotIn("撸猫",source)
+
     def test_invalid_scene_timing_does_not_replace_usable_motion(self):
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp);self.pack(root)

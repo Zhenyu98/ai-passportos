@@ -26,7 +26,7 @@ private inventories can be passed with `--glyph-manifest` and an ignored output.
 
 ## Images
 
-Passport OS uses generated 16/20 px, 4 bpp Noto Sans SC subsets in `fonts/`.
+AI PassportOS uses generated 16/20 px, 4 bpp Noto Sans SC subsets in `fonts/`.
 The OFL license is retained beside them. The source is pinned to Google Fonts
 revision `2894aab31764f10f29c421bdfd2340d3b382d384`; SHA-256
 `a3041811a78c361b1de50f953c805e0244951c21c5bd412f7232ef0d899af0da`.

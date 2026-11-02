@@ -1,0 +1,186 @@
+{
+  "version": "design-preview-1",
+  "dimensions": [
+    76,
+    150
+  ],
+  "layout": "6 columns x 3 rows",
+  "rows": [
+    "idle",
+    "focus",
+    "nod"
+  ],
+  "sequences": {
+    "idle": [
+      [
+        [
+          "idle",
+          0
+        ],
+        [
+          "idle",
+          1
+        ],
+        [
+          "idle",
+          2
+        ],
+        [
+          "idle",
+          3
+        ],
+        [
+          "idle",
+          4
+        ],
+        [
+          "idle",
+          5
+        ]
+      ],
+      [
+        1900,
+        500,
+        100,
+        100,
+        100,
+        1600
+      ]
+    ],
+    "look-left": [
+      [
+        [
+          "idle",
+          0
+        ],
+        [
+          "focus",
+          1
+        ],
+        [
+          "focus",
+          2
+        ],
+        [
+          "focus",
+          1
+        ],
+        [
+          "idle",
+          0
+        ]
+      ],
+      [
+        500,
+        100,
+        450,
+        100,
+        500
+      ]
+    ],
+    "look-right": [
+      [
+        [
+          "idle",
+          0
+        ],
+        [
+          "focus",
+          4
+        ],
+        [
+          "focus",
+          5
+        ],
+        [
+          "focus",
+          4
+        ],
+        [
+          "idle",
+          0
+        ]
+      ],
+      [
+        500,
+        100,
+        450,
+        100,
+        500
+      ]
+    ],
+    "nod": [
+      [
+        [
+          "nod",
+          0
+        ],
+        [
+          "nod",
+          1
+        ],
+        [
+          "nod",
+          2
+        ],
+        [
+          "nod",
+          3
+        ],
+        [
+          "nod",
+          4
+        ],
+        [
+          "nod",
+          5
+        ]
+      ],
+      [
+        500,
+        80,
+        100,
+        80,
+        100,
+        1000
+      ]
+    ]
+  },
+  "baseline_y": 146,
+  "runtime_nod": {
+    "sequence": [
+      [
+        "nod",
+        1
+      ],
+      [
+        "nod",
+        2
+      ],
+      [
+        "nod",
+        3
+      ],
+      [
+        "nod",
+        4
+      ],
+      [
+        "nod",
+        5
+      ]
+    ],
+    "duration_ms": [
+      80,
+      100,
+      80,
+      100,
+      80
+    ],
+    "then": [
+      "idle",
+      0
+    ]
+  },
+  "purpose": "design review only; not a Pets v2 upload sheet or flashed firmware"
+}

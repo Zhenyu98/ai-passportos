@@ -1,6 +1,6 @@
 <p align="right"><a href="passport-os-v0.1-visual-spec.zh_CN.md">简体中文</a> · <strong>English</strong></p>
 
-# Passport OS visual spec
+# AI PassportOS visual spec
 
 Reference for anyone changing the badge UI. Keep new screens inside these
 tokens; the geometry lives as `#define` constants at the top of

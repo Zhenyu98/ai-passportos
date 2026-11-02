@@ -1,6 +1,6 @@
 [简体中文](passport-motion.zh_CN.md) · **English**
 
-# Passport OS character motion
+# AI PassportOS character motion
 
 The approved calm character now has a pre-rendered animation player: occasional
 breathing/blinking, attention to the selected button, and one nod after returning
@@ -19,9 +19,9 @@ Selection stores a scene ID in the avatar-slot header sector and survives reboot
 profile/NVS and the full-screen picture slot are unchanged. Choosing a regular
 scene returns to a static avatar.
 
-The public source build retains its neutral three-frame placeholder. It does not
-redistribute the user's character artwork. A public build without the private pack
-does not offer the dynamic-character entry.
+The public source build ships a two-scene showcase: the dynamic character and the
+Bund night view, published with the author's consent. It has no static gallery
+images and no petting-cat scene; personal packs add those locally.
 
 ## Runtime and layout
 
@@ -47,8 +47,16 @@ does not offer the dynamic-character entry.
 Local source frames and `animation-manifest.json` live in ignored
 `assets/private/passport-motion/`. They derive from the user's supplied default
 pixel character and the built-in image_gen animation strips approved on
-2026-10-22. No redistribution of that identity artwork is assumed. Public assets
-include only the empty motion-set source `assets/images/passport_motion.c`.
+2026-10-22. The showcase sources (the default character and the night scene only)
+are committed in `assets/showcase/`, and `assets/images/passport_motion.c` is
+generated from them:
+
+```text
+python tools/build_passport_motion.py --pack assets/showcase/motion --scene-pack assets/showcase/scenes --scene night --public --output <temporary directory>
+```
+
+Copy `images/passport_motion.c` and `passport/motion-manifest.json` from that
+directory into `assets/`, then refresh the checksums in `assets/passport/manifest.json`.
 
 Generate the private source alongside an existing private font/gallery set:
 
@@ -88,7 +96,9 @@ the user's approved image_gen night/cat samples from 2026-10-22.
 The main asset generator accepts `--motion-pack` and `--scene-pack`; it detects
 these local packs for personal builds. It also records the motion source in the
 asset manifest. A private LVGL preview can require the resources using
-`--require-motion-scenes 3`, so tests cannot silently skip the feature.
+`--require-motion-scenes 3` (add `--require-agent-name Nora` to check the personal
+agent art), so tests cannot silently skip the feature. The public showcase passes
+with `--require-motion-scenes 2`.
 
 This is compiled-in animation. The PAV1 single-image upload protocol remains
 compatible for static images. It cannot accept this frame set or a GIF. Built-in

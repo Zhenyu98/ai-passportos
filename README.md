@@ -1,6 +1,6 @@
 <p align="right"><a href="README.zh_CN.md">简体中文</a> · <strong>English</strong></p>
 
-<h1 align="center">Passport OS</h1>
+<h1 align="center">AI PassportOS</h1>
 
 <p align="center">
   <strong>Open firmware that turns the FoloToy AI Passport into a research identity badge with a Muse AI assistant on board.</strong>
@@ -13,14 +13,14 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Zhenyu98/passport-os/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/Zhenyu98/passport-os?style=flat-square&logo=github"></a>
+  <a href="https://github.com/Zhenyu98/ai-passportos/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/Zhenyu98/ai-passportos?style=flat-square&logo=github"></a>
   <a href="LICENSE"><img alt="License MIT" src="https://img.shields.io/badge/License-MIT-64748b?style=flat-square"></a>
   <img alt="ESP32-C3" src="https://img.shields.io/badge/ESP32--C3-no_PSRAM-2563eb?style=flat-square">
   <img alt="ESP-IDF" src="https://img.shields.io/badge/ESP--IDF-5.5.3_%7C_6.0.1-14b8a6?style=flat-square">
 </p>
 
 <p align="center">
-  <img src="assets/images/passport-os-hero.png" alt="Passport OS screens: identity card, Muse reply, network page, QR page" width="94%">
+  <img src="assets/images/ai-passportos-hero.png" alt="AI PassportOS screens: identity card, Muse reply, network page, QR page" width="94%">
 </p>
 
 ## What it does
@@ -54,7 +54,7 @@ partition, so switching firmware with a segmented flash keeps your data.
 ## Quick start
 
 1. Download `FoloToy-AI-Passport-full.bin` from the
-   [releases](https://github.com/Zhenyu98/passport-os/releases), or build it.
+   [releases](https://github.com/Zhenyu98/ai-passportos/releases), or build it.
 2. Flash the merged image at `0x0` (this resets stored data):
 
    ```text
@@ -77,8 +77,8 @@ The repository is set up for AI-assisted development (`AGENTS.md`, `skills/`).
 Paste this into Codex, Claude Code or another coding agent:
 
 ```text
-Read docs/agent-setup.md in https://github.com/Zhenyu98/passport-os and follow it
-to set up the toolchain and build Passport OS. Show me the plan before installing
+Read docs/agent-setup.md in https://github.com/Zhenyu98/ai-passportos and follow it
+to set up the toolchain and build AI PassportOS. Show me the plan before installing
 anything, never flash a device without my approval, and report the build checks.
 ```
 

@@ -1,6 +1,6 @@
 [简体中文](passport-os-v0.1-plan.zh_CN.md) · **English**
 
-# Passport OS v0.1 implementation plan
+# AI PassportOS v0.1 implementation plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans for native execution, or superpowers:subagent-driven-development if the user selects that method. Steps use checkbox syntax for tracking.
 

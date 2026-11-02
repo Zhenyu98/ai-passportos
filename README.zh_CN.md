@@ -1,6 +1,6 @@
 <p align="right"><strong>简体中文</strong> · <a href="README.md">English</a></p>
 
-<h1 align="center">Passport OS</h1>
+<h1 align="center">AI PassportOS</h1>
 
 <p align="center">
   <strong>把 FoloToy AI Passport 变成一张科研身份工牌，并内置 Muse AI 助理的开源固件。</strong>
@@ -13,14 +13,14 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Zhenyu98/passport-os/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/Zhenyu98/passport-os?style=flat-square&logo=github"></a>
+  <a href="https://github.com/Zhenyu98/ai-passportos/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/Zhenyu98/ai-passportos?style=flat-square&logo=github"></a>
   <a href="LICENSE"><img alt="MIT 许可证" src="https://img.shields.io/badge/License-MIT-64748b?style=flat-square"></a>
   <img alt="ESP32-C3" src="https://img.shields.io/badge/ESP32--C3-no_PSRAM-2563eb?style=flat-square">
   <img alt="ESP-IDF" src="https://img.shields.io/badge/ESP--IDF-5.5.3_%7C_6.0.1-14b8a6?style=flat-square">
 </p>
 
 <p align="center">
-  <img src="assets/images/passport-os-hero.png" alt="Passport OS 界面：身份卡、Muse 回复、网络页、二维码页" width="94%">
+  <img src="assets/images/ai-passportos-hero.png" alt="AI PassportOS 界面：身份卡、Muse 回复、网络页、二维码页" width="94%">
 </p>
 
 ## 它能做什么
@@ -52,7 +52,7 @@
 
 ## 快速开始
 
-1. 从 [Releases](https://github.com/Zhenyu98/passport-os/releases) 下载
+1. 从 [Releases](https://github.com/Zhenyu98/ai-passportos/releases) 下载
    `FoloToy-AI-Passport-full.bin`，或自行编译。
 2. 从 `0x0` 刷入合并镜像（会重置已保存的数据）：
 
@@ -73,8 +73,8 @@
 Claude Code 或其他编程助手：
 
 ```text
-请阅读 https://github.com/Zhenyu98/passport-os 里的 docs/agent-setup.zh_CN.md，
-按步骤配置工具链并编译 Passport OS。安装任何东西之前先给我看计划，未经我同意
+请阅读 https://github.com/Zhenyu98/ai-passportos 里的 docs/agent-setup.zh_CN.md，
+按步骤配置工具链并编译 AI PassportOS。安装任何东西之前先给我看计划，未经我同意
 不要刷写设备，最后报告各项编译检查结果。
 ```
 

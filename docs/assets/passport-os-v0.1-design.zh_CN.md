@@ -1,6 +1,6 @@
 [English](passport-os-v0.1-design.md) · **简体中文**
 
-# Passport OS v0.1 设计
+# AI PassportOS v0.1 设计
 
 日期：2026-10-20。状态：用户已于 2026-10-20 批准设计，尚未开始应用实现。另见[实施计划](passport-os-v0.1-plan.zh_CN.md)。
 

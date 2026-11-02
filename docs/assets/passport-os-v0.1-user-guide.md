@@ -1,6 +1,6 @@
 <p align="right"><a href="passport-os-v0.1-user-guide.zh_CN.md">简体中文</a> · <strong>English</strong></p>
 
-# Passport OS v0.1
+# AI PassportOS v0.1
 
 The device starts on the research badge. UP/DOWN moves the highlight between
 the two bottom buttons; OK enters the highlighted one — AGENT opens the
@@ -60,14 +60,15 @@ Windows (otherwise browse to `http://192.168.4.1/`).
 
 The page edits the five profile fields, sets the clock from the phone, and
 switches the avatar. The embedded pixel-scene gallery (the user's avatar pack
-in private builds, one default scene in public builds) is listed as tappable
+in private builds; the dynamic character and the Bund night view in public
+builds) is listed as tappable
 options; selecting one copies the scene into the avatar slot and the badge
 shows it immediately. The picture page image (for example a WeChat or contact
 QR card) is uploaded the same way: the page shows a 240x320 crop frame, which
 the user drags and zooms over the chosen photo, and the browser converts that
 exact crop to RGB565 before transfer. The device memory-maps it from flash and
 shows it full-screen with zero RAM cost. `Clear picture` restores the empty
-state and the first gallery scene (the default) restores the default avatar.
+state and choosing the dynamic character restores the default avatar.
 Saves run through the same single-writer storage path as USB with
 compiled-glyph validation; unsupported characters are rejected. The hotspot
 closes five minutes after it starts.

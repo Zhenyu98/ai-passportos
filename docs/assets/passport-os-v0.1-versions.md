@@ -1,6 +1,6 @@
 [简体中文](passport-os-v0.1-versions.zh_CN.md) · **English**
 
-# Passport OS local versions
+# AI PassportOS local versions
 
 The active branch is `feature/passport-os-v0.1`. Save source changes as focused
 commits; generated firmware, private profiles, photos, personal font subsets and

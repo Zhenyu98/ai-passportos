@@ -5,14 +5,14 @@
 ## 复制即用的提示词
 
 ```text
-请阅读 https://github.com/Zhenyu98/passport-os 里的 docs/agent-setup.zh_CN.md，
-按步骤配置工具链并编译 Passport OS。安装任何东西之前先给我看计划，未经我同意
+请阅读 https://github.com/Zhenyu98/ai-passportos 里的 docs/agent-setup.zh_CN.md，
+按步骤配置工具链并编译 AI PassportOS。安装任何东西之前先给我看计划，未经我同意
 不要刷写设备，最后报告各项编译检查结果。
 ```
 
 ## 目标
 
-在用户电脑上编译出通过校验的 Passport OS 固件（默认版或 Muse 版）；未经用户
+在用户电脑上编译出通过校验的 AI PassportOS 固件（默认版或 Muse 版）；未经用户
 同意，不碰设备，也不动设备上已保存的数据。
 
 ## 前提

@@ -1,0 +1,12 @@
+{
+  "format": "RGB565A8",
+  "frame_count": 8,
+  "height": 132,
+  "name": "Muse",
+  "pixel_bytes": 405504,
+  "private": false,
+  "schema": 1,
+  "sheet_sha256": "6caff64a833fc7f9f86d8e8f1bd1faf0fd23a70e90f1685d8acbc0ea3079be70",
+  "source_sha256": "601b3096c478f34993ed8d0e8875ebcc3509cfc08b453c90958b14b0e6550c5e",
+  "width": 128
+}

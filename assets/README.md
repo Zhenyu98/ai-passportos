@@ -56,13 +56,16 @@ to require all three dynamic choices. The personal artwork is not redistributed.
 Muse Agent uses its own Nora character, separate from the identity card. The
 user's screenshot is retained at ignored `private/muse-nora/reference.jpg`;
 built-in `imagegen` produced `private/muse-nora/nora-states-v1.png` on 2026-10-24.
-Her glasses, twin ponytails, cream bows and blue blouse are retained. No
+Her glasses, twin ponytails, cream bows and blue blouse are retained. Initially no
 redistribution permission is assumed. `tools/build_passport_agent_avatar.py`
 packs eight 128×132 RGB565A8 frames into ignored
 `build/passport-assets/images/passport_agent_avatar.c`: 405,504 Flash pixel
-bytes, without a frame decoding buffer. Public builds use
-`images/passport_agent_avatar.c`, which reuses the showcase default character
-(falling back to the neutral placeholder when no motion set is compiled). Local `required_agent_avatar: true` and a
+bytes, without a frame decoding buffer. On 2026-11-02 the author approved publishing this character: public builds
+use the same eight frames in `images/passport_agent_avatar.c`, shown as Muse.
+The sheet is `showcase/agent/muse-states.png`; regenerate with `python
+tools/build_passport_agent_avatar.py --sheet assets/showcase/agent/muse-states.png
+--output assets --name Muse --public`. The source screenshot `reference.jpg`
+stays private. Local `required_agent_avatar: true` and a
 source checksum prevent silently losing Nora in personal builds.
 
 | File | Dimensions and format | Use and source |

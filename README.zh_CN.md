@@ -39,6 +39,8 @@
 
 ### Muse AI 助理
 
+Muse 接入基于 Meta 官方的 [Muse Gadget SDK](https://github.com/facebookincubator/muse-gadget-sdk)（固定在提交
+[`e6fe517`](https://github.com/facebookincubator/muse-gadget-sdk/tree/e6fe5174092702ffddae6f90759a38d55a4ebae1)），编译时按固定版本获取，不随本仓库分发。
 在 Muse 手机应用里用蓝牙配对后，工牌就是 Muse 的随身入口：按 OK 说话，
 屏幕上显示回复预览，完整内容留在手机里。回复可以存成本地笔记，最近八条随时翻看。
 

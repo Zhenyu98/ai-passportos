@@ -29,6 +29,13 @@ class AgentAvatarTests(unittest.TestCase):
             self.assertEqual(source.count('.data_size='),8)
             self.assertIn('LV_COLOR_FORMAT_RGB565A8',source)
             self.assertEqual(json.loads((root/'out/passport/agent-avatar-manifest.json').read_text()),manifest)
+    def test_committed_public_agent_matches_showcase_sheet(self):
+        with tempfile.TemporaryDirectory(dir=ROOT/'build') as folder:
+            out=Path(folder)/'out'
+            manifest=pack.generate(ROOT/'assets/showcase/agent/muse-states.png',out,'Muse',True)
+            self.assertFalse(manifest['private'])
+            self.assertEqual((out/'images/passport_agent_avatar.c').read_bytes(),(ROOT/'assets/images/passport_agent_avatar.c').read_bytes())
+            self.assertEqual(json.loads((ROOT/'assets/passport/agent-avatar-manifest.json').read_text()),manifest)
     def test_opaque_screenshot_is_rejected(self):
         with tempfile.TemporaryDirectory(dir=ROOT/'build') as folder:
             root=Path(folder);Image.new('RGBA',(256,128),'white').save(root/'sheet.png')

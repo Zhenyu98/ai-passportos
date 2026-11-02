@@ -48,10 +48,13 @@ Git 忽略。默认中性头像为原创程序生成的临时素材，采用仓�
 Muse Agent 单独使用 Nora，身份卡头像不变。2026-10-24 用户提供的截图保存在
 忽略的 `private/muse-nora/reference.jpg`；内置 `imagegen` 生成透明八帧图
 `private/muse-nora/nora-states-v1.png`，保留眼镜、双马尾、米色发结与浅蓝衣服，
-不假定再分发授权。`tools/build_passport_agent_avatar.py` 将素材打包为八张
+起初不假定再分发授权。`tools/build_passport_agent_avatar.py` 将素材打包为八张
 128×132 RGB565A8 帧，放入忽略的 `build/passport-assets/images/passport_agent_avatar.c`。
-像素共 405,504 字节，驻留 Flash，不使用整帧解码缓冲。公共构建由
-`images/passport_agent_avatar.c` 复用展示用的默认动态角色（动画集缺失时退回中性占位图）；本地 `required_agent_avatar: true`
+像素共 405,504 字节，驻留 Flash，不使用整帧解码缓冲。2026-11-02 作者同意公开这个形象：公共构建的
+`images/passport_agent_avatar.c` 使用同一组八帧，页面显示名为 Muse。素材表在
+`showcase/agent/muse-states.png`，可用 `python tools/build_passport_agent_avatar.py
+--sheet assets/showcase/agent/muse-states.png --output assets --name Muse --public`
+重新生成；原始截图 `reference.jpg` 仍不公开。本地 `required_agent_avatar: true`
 与源码哈希检查防止个人构建静默丢失 Nora。
 
 | 文件 | 尺寸与格式 | 用途与来源 |

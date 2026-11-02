@@ -41,6 +41,9 @@ QR button opens a full-screen QR code or business-card image.
 
 ### Muse AI assistant
 
+The Muse integration is built on Meta's official [Muse Gadget SDK](https://github.com/facebookincubator/muse-gadget-sdk),
+pinned to commit [`e6fe517`](https://github.com/facebookincubator/muse-gadget-sdk/tree/e6fe5174092702ffddae6f90759a38d55a4ebae1) and fetched at build time rather than
+vendored here.
 After Bluetooth LE pairing in the Muse app, the badge becomes a pocket entry to
 Muse: press OK to talk, read a reply preview on screen, and keep the full answer
 on your phone. Replies can be saved as local notes; the newest eight stay on the badge.

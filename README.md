@@ -117,6 +117,17 @@ anything, never flash a device without my approval, and report the build checks.
 
 See [docs/agent-setup.md](docs/agent-setup.md) for the full checklist.
 
+## Using Muse
+
+- This is an independent open-source project. It is not made, endorsed or
+  supported by Meta. Muse is a Meta product and trademark.
+- The released firmware **contains no SDK token**. Each user requests their own
+  token at [gadgets.muse.ai](https://gadgets.muse.ai/settings/sdk-tokens) and writes
+  it to the badge over USB (see the [Muse integration guide](docs/assets/passport-muse-integration.md)).
+- Token use is governed by the [Gadget SDK Terms](https://gadgets.muse.ai/sdk-terms): a token is personal,
+  so do not share or publish it; one token links to at most 50 devices; devices
+  carrying a token must not be sold or listed publicly.
+
 ## Known limits
 
 - Muse replies are text. Reading them aloud needs a text-to-speech endpoint of

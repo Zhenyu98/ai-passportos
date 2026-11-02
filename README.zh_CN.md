@@ -108,6 +108,16 @@ Claude Code 或其他编程助手：
 
 完整清单见 [docs/agent-setup.zh_CN.md](docs/agent-setup.zh_CN.md)。
 
+## Muse 使用须知
+
+- 本项目是个人开源项目，不是 Meta 制作的，也没有得到 Meta 的认可或支持。Muse
+  是 Meta 的产品和商标。
+- 发布的固件**不含任何 SDK token**。每位用户需要在
+  [gadgets.muse.ai](https://gadgets.muse.ai/settings/sdk-tokens) 申请自己的 token，
+  再用 USB 写入工牌（见 [Muse 接入指南](docs/assets/passport-muse-integration.zh_CN.md)）。
+- 使用 token 须遵守 [Gadget SDK 条款](https://gadgets.muse.ai/sdk-terms)：token 仅限个人使用，不要分享或公开；
+  同一个 token 最多用于 50 台设备；不得把装有 token 的设备出售或公开上架。
+
 ## 已知限制
 
 - Muse 返回的是文字。要朗读出来，需要你自己提供一个语音合成接口

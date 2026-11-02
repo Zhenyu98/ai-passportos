@@ -21,10 +21,10 @@
 </p>
 
 <p align="center">
-  <img src="assets/images/ai-passportos-hero.png" alt="AI PassportOS screens: animated identity card, Muse reply, Bund night-view avatar, landscape mini game" width="94%">
+  <img src="assets/images/ai-passportos-hero.png" alt="AI PassportOS screens: animated identity card, Muse reply, contact QR card, Bund night-view avatar, landscape mini game" width="94%">
 </p>
 
-<p align="center"><sub>All screens are host renders of the real firmware UI. The sample profile is fictional.</sub></p>
+<p align="center"><sub>All screens are host renders of the real firmware UI. The sample profile is fictional; the contact QR points to this repository.</sub></p>
 
 ## What it does
 
@@ -37,7 +37,8 @@ sideways for a quick game. Everything is driven by the three buttons on the devi
 Name, role, organization and bio in Chinese or English, with a live clock and
 battery level. The avatar is a pixel character that breathes, blinks and nods,
 or an animated banner such as the Bund night view; the layout adapts to it. The
-QR button opens a full-screen QR code or business-card image.
+QR button opens a full-screen contact card, such as a WeChat QR card: upload a
+photo on the phone configuration page, then drag and zoom to frame it.
 
 ### Muse AI assistant
 

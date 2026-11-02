@@ -21,10 +21,10 @@
 </p>
 
 <p align="center">
-  <img src="assets/images/ai-passportos-hero.png" alt="AI PassportOS 界面：动态身份卡、Muse 助理回复、外滩夜景头像、横屏小游戏" width="94%">
+  <img src="assets/images/ai-passportos-hero.png" alt="AI PassportOS 界面：动态身份卡、Muse 助理回复、名片二维码、外滩夜景头像、横屏小游戏" width="94%">
 </p>
 
-<p align="center"><sub>以上都是真实固件界面在电脑上的渲染截图，示例资料为虚构。</sub></p>
+<p align="center"><sub>以上是真实固件界面在电脑上的渲染截图。示例资料为虚构，名片二维码指向本仓库。</sub></p>
 
 ## 它能做什么
 
@@ -35,7 +35,7 @@
 
 姓名、职位、单位和简介，支持中英文，带实时时钟与电量。头像是会呼吸、眨眼、
 点头的像素角色，也可以换成外滩夜景这样的动态横幅；布局随头像自动调整。
-底部 QR 按钮打开全屏二维码或名片图。
+底部 QR 按钮打开全屏名片图，比如微信名片二维码：在手机配置页上传照片，拖动、缩放选好范围即可。
 
 ### Muse AI 助理
 

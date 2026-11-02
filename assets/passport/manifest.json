@@ -17,7 +17,7 @@
     "images/passport_gallery.c": "ba900bc00a2ff425ab9279e73fc829c22a58b463aaded6b0fdec73fe32886de4",
     "images/passport_motion.c": "9a534e1612cc5a4cd1d9860d13025e30567822c4ea83cd35e7d4d4cfc0e3597b",
     "passport/passport_glyphs.c": "896a7ebc3cf5f2cbbb18f940f89a5cc821dfb7c02f9bd6885b051f8482139f7c",
-    "passport/passport_strings.h": "8d52d56944cbba4a1024f4460bffa8db52121d9cafb0b55a19fd367b964fae8b"
+    "passport/passport_strings.h": "6589f8f5d4edf3c944bd6b49d168cc48da86744a14c12e51c6db18efc4651f1c"
   },
   "font_source_revision": "2894aab31764f10f29c421bdfd2340d3b382d384",
   "font_source_sha256": "a3041811a78c361b1de50f953c805e0244951c21c5bd412f7232ef0d899af0da",
@@ -6912,5 +6912,5 @@
     16,
     20
   ],
-  "ui_sha256": "edbeb9fc00f2f4a3258f44f130ecf287655623a3191ddecf85f9bfc2b70d5eb7"
+  "ui_sha256": "9d1c177adcabd67b127147d37e67ab2550045f12bde4c4db4efb3c288bbdd6a5"
 }

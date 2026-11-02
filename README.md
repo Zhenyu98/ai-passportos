@@ -3,13 +3,14 @@
 <h1 align="center">AI PassportOS</h1>
 
 <p align="center">
-  <strong>Open firmware that turns the FoloToy AI Passport into a research identity badge with a Muse AI assistant on board.</strong>
+  <strong>Open firmware that turns the FoloToy AI Passport into a multi-function AI badge.</strong>
 </p>
 
 <p align="center">
-  <strong>Identity card first</strong> ·
-  <strong>Push-to-talk to your Muse assistant</strong> ·
-  <strong>Your own animated character</strong>
+  <strong>Animated identity card</strong> ·
+  <strong>Muse AI assistant</strong> ·
+  <strong>Landscape mini game</strong> ·
+  <strong>Your own character</strong>
 </p>
 
 <p align="center">
@@ -20,25 +21,53 @@
 </p>
 
 <p align="center">
-  <img src="assets/images/ai-passportos-hero.png" alt="AI PassportOS screens: identity card, Muse reply, network page, QR page" width="94%">
+  <img src="assets/images/ai-passportos-hero.png" alt="AI PassportOS screens: animated identity card, Muse reply, Bund night-view avatar, landscape mini game" width="94%">
 </p>
+
+<p align="center"><sub>All screens are host renders of the real firmware UI. The sample profile is fictional.</sub></p>
 
 ## What it does
 
-The badge boots straight into your identity card: name, affiliation, research
-and an avatar that breathes, blinks and nods. Two buttons lead to the AI agent
-and a full-screen QR or business-card image. Everything is driven by the three
-buttons on the device.
+One badge, several jobs: it boots into an animated identity card, one button
+press opens your Muse AI assistant, and in a quiet moment you can turn it
+sideways for a quick game. Everything is driven by the three buttons on the device.
+
+### Animated identity card
+
+Name, role, organization and bio in Chinese or English, with a live clock and
+battery level. The avatar is a pixel character that breathes, blinks and nods,
+or an animated banner such as the Bund night view; the layout adapts to it. The
+QR button opens a full-screen QR code or business-card image.
+
+### Muse AI assistant
+
+After Bluetooth LE pairing in the Muse app, the badge becomes a pocket entry to
+Muse: press OK to talk, read a reply preview on screen, and keep the full answer
+on your phone. Replies can be saved as local notes; the newest eight stay on the badge.
+
+<p align="center">
+  <img src="assets/images/showcase-muse.png" alt="Muse assistant: listening, reply, task result, local notes" width="94%">
+</p>
+
+Muse can also operate the badge through a small set of device tools: read
+status, set brightness, save a note and switch pages. Nothing else.
+
+### Landscape mini game
+
+The hidden menu holds a side-scrolling platform game. Turn the badge sideways:
+UP/DOWN move, OK jumps.
+
+<p align="center">
+  <img src="assets/images/showcase-game.png" alt="Mini game: in play and title screen" width="66%">
+</p>
+
+### Also included
 
 | Feature | Details |
 | --- | --- |
-| Identity card | Five profile fields, Chinese and English text, live clock and battery, layout that adapts to the avatar |
-| Muse assistant | Bluetooth LE pairing in the Muse app, encrypted control session, streamed 16 kHz voice notes, reply preview on screen, eight local notes |
-| Device tools for Muse | Muse can read status, set brightness, save a note and switch pages; nothing else |
 | Configuration | Phone hotspot portal (default firmware) or LAN page with a one-time code (Muse firmware), plus a USB JSON protocol |
 | Network time | The Muse firmware sets the clock from NTP as soon as Wi-Fi is up |
-| Animated avatar | Hatch a character with Codex's `$hatch-pet` and convert it with one command ([skill](skills/passport-pet-avatar/SKILL.md)) |
-| Mini game | A side-scrolling runner in the hidden menu |
+| Custom character | Hatch a character with Codex's `$hatch-pet` and convert it with one command ([skill](skills/passport-pet-avatar/SKILL.md)) |
 
 ## Two firmware builds
 

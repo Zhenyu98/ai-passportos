@@ -46,7 +46,7 @@ void passport_settings_error(passport_status_t status,const passport_glyph_issue
                              char *out,size_t capacity) {
     if(!out || !capacity) return;
     if(status==PASSPORT_ERR_UNSUPPORTED && issue && issue->codepoint) {
-        static const char *const labels[]={"姓名","学术身份","研究方向","简介","主页"};
+        static const char *const labels[]={"姓名","职位","单位","简介","主页"};
         char character[5];encode(issue->codepoint,character);
         snprintf(out,capacity,"%s含有字库未收录的字符：%s（U+%04lX）。请更换字符或更新设备字库。",
             issue->field<5?labels[issue->field]:"资料",character,(unsigned long)issue->codepoint);

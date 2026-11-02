@@ -3,13 +3,14 @@
 <h1 align="center">AI PassportOS</h1>
 
 <p align="center">
-  <strong>把 FoloToy AI Passport 变成一张科研身份工牌，并内置 Muse AI 助理的开源固件。</strong>
+  <strong>把 FoloToy AI Passport 变成一张多功能 AI 工牌的开源固件。</strong>
 </p>
 
 <p align="center">
-  <strong>开机即身份卡</strong> ·
-  <strong>按键与 Muse 助理对话</strong> ·
-  <strong>换上你自己的动态角色</strong>
+  <strong>动态身份卡</strong> ·
+  <strong>Muse AI 助理</strong> ·
+  <strong>横屏小游戏</strong> ·
+  <strong>换上你自己的角色</strong>
 </p>
 
 <p align="center">
@@ -20,24 +21,49 @@
 </p>
 
 <p align="center">
-  <img src="assets/images/ai-passportos-hero.png" alt="AI PassportOS 界面：身份卡、Muse 回复、网络页、二维码页" width="94%">
+  <img src="assets/images/ai-passportos-hero.png" alt="AI PassportOS 界面：动态身份卡、Muse 助理回复、外滩夜景头像、横屏小游戏" width="94%">
 </p>
+
+<p align="center"><sub>以上都是真实固件界面在电脑上的渲染截图，示例资料为虚构。</sub></p>
 
 ## 它能做什么
 
-工牌开机直接显示你的身份卡：姓名、单位、研究方向，以及会呼吸、眨眼、点头
-的头像。底部两个按钮分别进入 AI 智能体页和全屏二维码/名片图。所有操作都用
-设备上的三个按键完成。
+一块工牌，几种用法：开机是会动的身份卡，按一下进入 Muse AI 助理，闲下来还能
+横过来玩一局小游戏。所有操作都用设备上的三个按键完成。
+
+### 动态身份卡
+
+姓名、职位、单位和简介，支持中英文，带实时时钟与电量。头像是会呼吸、眨眼、
+点头的像素角色，也可以换成外滩夜景这样的动态横幅；布局随头像自动调整。
+底部 QR 按钮打开全屏二维码或名片图。
+
+### Muse AI 助理
+
+在 Muse 手机应用里用蓝牙配对后，工牌就是 Muse 的随身入口：按 OK 说话，
+屏幕上显示回复预览，完整内容留在手机里。回复可以存成本地笔记，最近八条随时翻看。
+
+<p align="center">
+  <img src="assets/images/showcase-muse.png" alt="Muse 助理：录音、回复、任务结果、本地笔记" width="94%">
+</p>
+
+Muse 还能通过一组受限的设备工具操作工牌：查状态、调亮度、存笔记、切换页面，
+除此之外不能做别的事。
+
+### 横屏小游戏
+
+隐藏菜单里有一个横版闯关小游戏。把工牌横过来，上下键左右移动，OK 跳跃。
+
+<p align="center">
+  <img src="assets/images/showcase-game.png" alt="横屏小游戏：游戏中和开始界面" width="66%">
+</p>
+
+### 其他
 
 | 功能 | 说明 |
 | --- | --- |
-| 身份卡 | 五个资料字段，支持中英文，实时时钟与电量，布局随头像自适应 |
-| Muse 助理 | 在 Muse 手机应用中蓝牙配对，加密控制会话，16 kHz 流式语音笔记，屏幕显示回复预览，保留八条本地笔记 |
-| 给 Muse 的设备工具 | Muse 只能查状态、调亮度、存笔记和切换页面，不能做其他事 |
 | 配置 | 默认固件用手机热点引导页，Muse 固件用带一次性访问码的局域网页面，另有 USB JSON 协议 |
 | 网络对时 | Muse 固件连上 Wi-Fi 后自动用 NTP 校准时钟 |
-| 动态头像 | 用 Codex 的 `$hatch-pet` 孵化角色，一条命令转换（[技能说明](skills/passport-pet-avatar/SKILL.zh_CN.md)） |
-| 小游戏 | 隐藏菜单里的横版跑酷 |
+| 自定义角色 | 用 Codex 的 `$hatch-pet` 孵化角色，一条命令转换（[技能说明](skills/passport-pet-avatar/SKILL.zh_CN.md)） |
 
 ## 两种固件
 

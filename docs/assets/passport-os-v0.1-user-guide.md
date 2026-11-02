@@ -2,7 +2,7 @@
 
 # AI PassportOS v0.1
 
-The device starts on the research badge. UP/DOWN moves the highlight between
+The device starts on the identity badge. UP/DOWN moves the highlight between
 the two bottom buttons; OK enters the highlighted one — AGENT opens the
 assistant page and QR shows the full-screen picture page (an uploaded card/QR
 image, no status bar). On the picture page OK returns to the badge. The badge
@@ -79,6 +79,8 @@ Install `tools/requirements-passport-host.txt` with pip. Use an explicitly
 verified port (`COM7` below is an example). The tool does not probe ports and
 sets DTR/RTS false before opening. A UTF-8 local JSON file contains exactly five string
 fields: `name`, `title`, `research`, `bio`, `homepage`; empty strings are allowed.
+The configuration page labels `title` as role and `research` as organization or
+tag; the field names are kept for compatibility.
 Byte limits, excluding terminators, are 64/96/192/512/128. Only research and bio
 allow newlines; homepage is empty or a valid HTTP(S) URL.
 

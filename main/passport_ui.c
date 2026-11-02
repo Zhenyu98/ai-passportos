@@ -318,7 +318,7 @@ static void agent_update(void) {
 }
 static bool agent_build(void) {
     text(body,12,16,216,30,passport_agent_name,&passport_font_20,DARK_INK,true);
-    agent_stage=box(body,0,50,240,142,0xffffff);
+    agent_stage=box(body,0,46,240,150,0xffffff);
     if(!agent_stage) return false;
     lv_obj_set_style_bg_opa(agent_stage,LV_OPA_TRANSP,0);
     const lv_image_dsc_t *portrait=passport_agent_avatar_frame(0);
@@ -326,7 +326,7 @@ static bool agent_build(void) {
     if(!avatar) {page_failed=true;return false;}
     lv_image_set_src(avatar,portrait);
     /* Native Flash frames avoid a scaled image layer on the no-PSRAM C3. */
-    lv_obj_set_pos(avatar,(240-(int)portrait->header.w)/2,(142-(int)portrait->header.h)/2);
+    lv_obj_set_pos(avatar,(240-(int)portrait->header.w)/2,(150-(int)portrait->header.h)/2);
     avatar_scene=NULL;avatar_motion=avatar_temporary=false;
     scene_began=agent_visual_since=lv_tick_get();blink_tick=0;
     agent_content=lv_obj_create(body);
@@ -707,7 +707,7 @@ static void game_overlay_update(void) {
         else lv_obj_clear_flag(game_overlay_hint2,LV_OBJ_FLAG_HIDDEN);
         if(wanted==1) {
             lv_label_set_text(game_overlay_title,PASSPORT_TEXT_MENU_GAME);
-            snprintf(line,sizeof line,"%s ×%u · %s %lu",PASSPORT_TEXT_GAME_LIVES,
+            snprintf(line,sizeof line,"%s x%u · %s %lu",PASSPORT_TEXT_GAME_LIVES,
                      game.lives,PASSPORT_TEXT_GAME_BEST,(unsigned long)game.best);
             lv_label_set_text(game_overlay_hint,PASSPORT_TEXT_GAME_READY);
             lv_label_set_text(game_overlay_hint2,PASSPORT_TEXT_GAME_EXIT);
@@ -739,7 +739,7 @@ static void game_frame(void) {
         game_shown_score=game.score;
     }
     if(game_shown_coins!=game.coins) {
-        snprintf(buf,sizeof buf,"×%02u",game.coins);
+        snprintf(buf,sizeof buf,"x%02u",game.coins);
         if(game_hud_coins) lv_label_set_text(game_hud_coins,buf);
         game_shown_coins=game.coins;
     }
@@ -838,7 +838,7 @@ static bool build_page(const passport_model_t *m,const passport_record_t *r) {
         for(unsigned i=0;i<3;i++) panel(body,BRIGHT_BAR_X0+(int)i*BRIGHT_BAR_GAP,BRIGHT_BAR_Y,BRIGHT_BAR_W,BRIGHT_BAR_H,m->brightness>=(i+1)*30?NEON:TRACK,4);
         text(body,CONTENT_X,BRIGHT_HINT_Y,CONTENT_W,24,PASSPORT_TEXT_BRIGHTNESS_HINT,&passport_font_16,MUTED,true);
     } else if(m->page==PASSPORT_PAGE_ABOUT) {
-        text(body,CONTENT_X,ABOUT_TITLE_Y,CONTENT_W,24,"Passport OS",&lv_font_montserrat_20,INK,true);
+        text(body,CONTENT_X,ABOUT_TITLE_Y,CONTENT_W,24,"AI PassportOS",&lv_font_montserrat_20,INK,true);
         text(body,CONTENT_X,ABOUT_VER_Y,CONTENT_W,24,PASSPORT_TEXT_ABOUT_VERSION " " PASSPORT_VERSION,&passport_font_16,NEON,true);
         text(body,CONTENT_X,ABOUT_BOARD_Y,CONTENT_W,24,PASSPORT_TEXT_ABOUT_BOARD,&passport_font_16,MUTED,true);
     } else if(m->page==PASSPORT_PAGE_MUSE_SETUP) {

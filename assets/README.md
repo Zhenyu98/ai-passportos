@@ -60,8 +60,9 @@ Her glasses, twin ponytails, cream bows and blue blouse are retained. No
 redistribution permission is assumed. `tools/build_passport_agent_avatar.py`
 packs eight 128×132 RGB565A8 frames into ignored
 `build/passport-assets/images/passport_agent_avatar.c`: 405,504 Flash pixel
-bytes, without a frame decoding buffer. Public builds use the neutral
-`images/passport_agent_avatar.c`. Local `required_agent_avatar: true` and a
+bytes, without a frame decoding buffer. Public builds use
+`images/passport_agent_avatar.c`, which reuses the showcase default character
+(falling back to the neutral placeholder when no motion set is compiled). Local `required_agent_avatar: true` and a
 source checksum prevent silently losing Nora in personal builds.
 
 | File | Dimensions and format | Use and source |

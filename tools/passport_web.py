@@ -158,8 +158,8 @@ PAGE = """<!doctype html>
  </div>
  <form id="f">
   <label>姓名</label><input type="text" name="name" value="@NAME@" maxlength="64">
-  <label>学术身份</label><input type="text" name="title" value="@TITLE@" maxlength="96">
-  <label>研究方向</label><input type="text" name="research" value="@RESEARCH@" maxlength="192">
+  <label>职位 / 身份</label><input type="text" name="title" value="@TITLE@" maxlength="96">
+  <label>单位 / 标签</label><input type="text" name="research" value="@RESEARCH@" maxlength="192">
   <label>简介</label><textarea name="bio" rows="2" maxlength="512">@BIO@</textarea>
   <label>个人主页链接</label>
   <input type="text" name="homepage" value="@HOMEPAGE@" maxlength="128" placeholder="https://...">

@@ -50,8 +50,8 @@ Muse Agent 单独使用 Nora，身份卡头像不变。2026-10-24 用户提供�
 `private/muse-nora/nora-states-v1.png`，保留眼镜、双马尾、米色发结与浅蓝衣服，
 不假定再分发授权。`tools/build_passport_agent_avatar.py` 将素材打包为八张
 128×132 RGB565A8 帧，放入忽略的 `build/passport-assets/images/passport_agent_avatar.c`。
-像素共 405,504 字节，驻留 Flash，不使用整帧解码缓冲。公共构建使用
-`images/passport_agent_avatar.c` 中的中性占位图；本地 `required_agent_avatar: true`
+像素共 405,504 字节，驻留 Flash，不使用整帧解码缓冲。公共构建由
+`images/passport_agent_avatar.c` 复用展示用的默认动态角色（动画集缺失时退回中性占位图）；本地 `required_agent_avatar: true`
 与源码哈希检查防止个人构建静默丢失 Nora。
 
 | 文件 | 尺寸与格式 | 用途与来源 |

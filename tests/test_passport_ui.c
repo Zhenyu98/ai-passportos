@@ -1,6 +1,7 @@
 #include "passport_ui.h"
 #include "passport_assets.h"
 #include "passport_qr.h"
+#include "passport_strings.h"
 #include "src/display/lv_display_private.h"
 #include "src/widgets/label/lv_label_private.h"
 #include <assert.h>
@@ -8,6 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define GAME_DEMO_STEPS 90
+#define GAME_DEMO_JUMP 25
 static uint16_t pixels[240*320];
 static uint16_t draw[240*40];
 static uint16_t picture_pixels[240*320];
@@ -290,7 +293,7 @@ int main(int argc,char **argv) {
     model.page=PASSPORT_PAGE_BADGE;
     assert(passport_ui_render(&model,&record,75,true,1761004800)); lv_refr_now(display); dump(argv[1],"badge-live");
     const char *name=record.profile.name[0]?record.profile.name:"姓名未设置";
-    const char *organization=record.profile.title[0]?record.profile.title:"学术身份未设置";
+    const char *organization=record.profile.title[0]?record.profile.title:PASSPORT_TEXT_TITLE_UNSET;
     lv_obj_t *name_label=find_label(lv_screen_active(),name),*organization_label=find_label(lv_screen_active(),organization);
     assert(name_label && organization_label);
     assert(lv_obj_get_style_text_font(name_label,0)==&passport_font_24_bold);
@@ -304,9 +307,9 @@ int main(int argc,char **argv) {
     size_t stable_free=0,stable_blocks=0;
     passport_agent_model_t agent={.revision=1,.state=PASSPORT_AGENT_REPLY,
         .connection=PASSPORT_AGENT_READY,.voice=PASSPORT_VOICE_READY,.journal={.version=1,.count=1}};
-    strcpy(agent.reply,"研究任务已完成，可以继续提问。");
+    strcpy(agent.reply,"明早 9:30 产品评审，已帮你记下。");
     strcpy(agent.journal.result,agent.reply);
-    strcpy(agent.journal.notes[0],"会议笔记：明天整理实验记录。");
+    strcpy(agent.journal.notes[0],"会议笔记：周五前整理需求清单。");
     passport_ui_agent_snapshot(&agent);
     model.page=PASSPORT_PAGE_AGENT;
     assert(passport_ui_render(&model,&record,75,true,1761004800));
@@ -319,7 +322,7 @@ int main(int argc,char **argv) {
     const char *agent_name=getenv("PASSPORT_PREVIEW_REQUIRE_AGENT_NAME");
     if(agent_name) assert(!strcmp(passport_agent_name,agent_name));
     unsigned agent_timers=timer_count();
-    for(unsigned i=0;i<20;i++) strcpy(agent.reply+i*strlen("研究任务记录与结果。\n"),"研究任务记录与结果。\n");
+    for(unsigned i=0;i<20;i++) strcpy(agent.reply+i*strlen("今日待办记录与结果。\n"),"今日待办记录与结果。\n");
     agent.revision++;passport_ui_agent_snapshot(&agent);
     assert(passport_ui_render(&model,&record,75,true,1761004800));lv_refr_now(display);
     lv_obj_t *reply_label=find_label(lv_screen_active(),agent.reply);assert(reply_label);
@@ -335,7 +338,7 @@ int main(int argc,char **argv) {
         assert(timer_count()==agent_timers);
         assert(lv_obj_get_scroll_y(reply_container)==reply_scroll);
     }
-    strcpy(agent.reply,"研究任务已完成，可以继续提问。");agent.revision++;passport_ui_agent_snapshot(&agent);
+    strcpy(agent.reply,"明早 9:30 产品评审，已帮你记下。");agent.revision++;passport_ui_agent_snapshot(&agent);
     agent.voice=PASSPORT_VOICE_PLAYING;agent.level=70;agent.revision++;passport_ui_agent_snapshot(&agent);
     assert(passport_ui_render(&model,&record,75,true,1761004800));
     assert(has_text(lv_screen_active(),"按 OK 停止朗读"));
@@ -404,6 +407,18 @@ int main(int argc,char **argv) {
     assert(has_text(lv_screen_active(),"确认清除 Muse 配对"));
     lv_refr_now(display);dump(argv[1],"muse-repair-confirm");
     model.setup_confirm=false;passport_ui_configuration(NULL,NULL);
+    /* A short scripted run documents the in-game view, not just its title overlay. */
+    model.page=PASSPORT_PAGE_GAME;
+    assert(passport_ui_render(&model,&record,-1,false,0));
+    passport_ui_game_key(PASSPORT_KEY_OK,PASSPORT_KEY_PRESS);passport_ui_game_key(PASSPORT_KEY_OK,PASSPORT_KEY_RELEASE);
+    passport_ui_game_key(PASSPORT_KEY_DOWN,PASSPORT_KEY_PRESS);
+    for(unsigned step=0;step<GAME_DEMO_STEPS;step++) {
+        if(step%GAME_DEMO_JUMP==GAME_DEMO_JUMP-1) passport_ui_game_key(PASSPORT_KEY_OK,PASSPORT_KEY_PRESS);
+        if(step%GAME_DEMO_JUMP==0) passport_ui_game_key(PASSPORT_KEY_OK,PASSPORT_KEY_RELEASE);
+        lv_tick_inc(33);assert(passport_ui_render(&model,&record,-1,false,0));
+    }
+    passport_ui_game_key(PASSPORT_KEY_DOWN,PASSPORT_KEY_RELEASE);
+    lv_refr_now(display);dump(argv[1],"game-play");
     for(unsigned iteration=0;iteration<100;iteration++) {
         for(int page=PASSPORT_PAGE_BADGE;page<=PASSPORT_PAGE_MUSE_SETUP;page++) {
             model.page=(passport_page_t)page;

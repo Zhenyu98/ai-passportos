@@ -1,12 +1,12 @@
 /* Generated from ui-text.json; font inventory uses the same copy. */
 #pragma once
-#define PASSPORT_TEXT_BADGE_TITLE "科研身份卡"
+#define PASSPORT_TEXT_BADGE_TITLE "身份卡"
 #define PASSPORT_TEXT_MENU_TITLE "功能菜单"
 #define PASSPORT_TEXT_BRIGHTNESS_TITLE "显示亮度"
 #define PASSPORT_TEXT_ABOUT_TITLE "关于"
 #define PASSPORT_TEXT_NAME_UNSET "姓名未设置"
-#define PASSPORT_TEXT_TITLE_UNSET "学术身份未设置"
-#define PASSPORT_TEXT_RESEARCH_UNSET "研究方向未设置"
+#define PASSPORT_TEXT_TITLE_UNSET "职位未设置"
+#define PASSPORT_TEXT_RESEARCH_UNSET "单位未设置"
 #define PASSPORT_TEXT_IMAGE_UNSET "未上传图片"
 #define PASSPORT_TEXT_IMAGE_HINT "Wi-Fi 配置中上传"
 #define PASSPORT_TEXT_MENU_BRIGHTNESS "显示亮度"

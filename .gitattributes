@@ -1,0 +1,6 @@
+# Generated asset hashes must survive Windows and Unix checkouts unchanged.
+assets/fonts/*.c text eol=lf
+assets/fonts/*OFL.txt text eol=lf
+assets/images/*.c text eol=lf
+assets/passport/* text eol=lf
+*.sh text eol=lf

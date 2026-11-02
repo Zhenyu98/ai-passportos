@@ -1,0 +1,4 @@
+Pillow==11.3.0
+zxing-cpp==2.3.0
+fonttools==4.60.1
+pyserial==3.5

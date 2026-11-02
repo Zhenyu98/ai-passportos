@@ -19,4 +19,11 @@ class PrepareMuse(unittest.TestCase):
         with self.assertRaises(ValueError): module.validate_output(ROOT/"main")
         module.validate_output(ROOT/"build/muse-source")
 
+    def test_unpaired_badge_without_token_keeps_ble_off(self):
+        # The SDK patch must guard the one place an unpaired badge starts BLE.
+        source=(ROOT/"tools/prepare_passport_muse.py").read_text(encoding="utf-8")
+        guard=source.index("if (!sdk_token || !*sdk_token)")
+        self.assertLess(guard,source.index("    start_ble_setup_server_if_needed();\n    enter_advertising_state(reason);\n''')"))
+        self.assertIn('led_status_set_state(LED_STATE_UNPAIRED);\n        return;',source)
+
 if __name__=="__main__": unittest.main()

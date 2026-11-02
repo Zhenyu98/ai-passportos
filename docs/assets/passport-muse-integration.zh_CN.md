@@ -119,6 +119,7 @@ python tools\configure_passport_muse.py --port COM7 --token-file build\muse-toke
 - Passport 的 USB 控制台同时承载 JSON 协议，运行命令前请关闭占用该串口的其他监视器。
 - 把 token 当作标识符：本项目关闭了 NVS 加密、Flash 加密和 eFuse 写入，因此 token 以明文存于 NVS。token 泄露后请在 gadgets.muse.ai 吊销、生成新 token 并重新设置。
 - Muse 在配对时记录 SDK token。若之后更换 token 或配对所用 token 被吊销，需要重新配对；启动日志会在已配对 token 与当前 token 不一致时警告。
+- 没有 token 又没配对过的工牌不开蓝牙：没有 token 时 Muse 无法配对，开着也没用。AGENT 页会提示「请先用数据线写入 Muse token」。写入 token 后设备自动重启，蓝牙随之打开，可以去 Muse 应用配对。已经配对过的工牌不受影响。
 
 ## 在 Muse 手机应用中配对
 

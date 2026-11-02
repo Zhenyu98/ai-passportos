@@ -83,7 +83,9 @@ its own hotspot, so you can edit your profile, avatar and contact card from a ph
 | Muse AI assistant | Not available | Push to talk, reply previews, local notes |
 | Clock | Set from the phone when you save the profile | Synced automatically once online |
 
-The identity card, contact QR card and mini game work either way.
+The identity card, contact QR card and mini game work either way. Without a
+token the badge keeps Bluetooth off, which saves memory and lets the firmware
+run in the community's online simulator.
 
 ## Quick start
 

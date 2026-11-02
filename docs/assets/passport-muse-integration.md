@@ -190,6 +190,10 @@ python tools\configure_passport_muse.py --port COM7 --token-file build\muse-toke
 - Muse records the SDK token at pairing time. If the token changes, or the one
   used for pairing is revoked, pair the badge again; the boot log warns when the
   paired token differs from the current one.
+- An unpaired badge with no token keeps Bluetooth off, since Muse can't pair
+  it without one. The AGENT page asks for the token over USB. Writing it
+  restarts the badge, which then turns Bluetooth on for pairing in the Muse
+  app. Badges that are already paired are unaffected.
 
 ## Pair the badge in the Muse app
 

@@ -56,6 +56,20 @@ def prepare(source,output):
     s=replace_once(s,'#include "app.h"','#include "app.h"\n#include "passport_muse_tools.h"')
     anchor='static cJSON *on_ws_command(\n    const char *command, cJSON *params, const char *request_id,\n    noise_ctrl_session_generation_t session_generation) {'
     s=replace_once(s,anchor,anchor+'\n    cJSON *passport_result = passport_muse_command(command, params);\n    if (passport_result) return passport_result;')
+    # Muse can't pair a badge without an SDK token, so an unpaired badge keeps
+    # BLE off until one is written over USB (which restarts it). This also keeps
+    # BLE-less emulators from spinning forever in controller init.
+    s=replace_once(s,'    start_ble_setup_server_if_needed();\n    enter_advertising_state(reason);\n','''    const char *sdk_token = identity_sdk_token();
+    if (!sdk_token || !*sdk_token) {
+        ESP_LOGI(TAG, "%s: no SDK token; BLE stays off", reason);
+        setup_stage_set("no_token");
+        ui_set_ble("off");
+        led_status_set_state(LED_STATE_UNPAIRED);
+        return;
+    }
+    start_ble_setup_server_if_needed();
+    enter_advertising_state(reason);
+''')
     app.write_text(s,encoding="utf-8")
     with app.open("a",encoding="utf-8") as f:
         f.write('''\n/* Passport binds physical consent to the displayed SDK pairing session. */

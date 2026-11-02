@@ -53,7 +53,11 @@ static passport_agent_state_t connection(void) {
     int battery;passport_app_device_status(&battery,NULL,NULL);
     muse_power_t power={.battery_pct=battery};muse_state_set_power(&power);
     switch(muse_link_state()) {
-        case MUSE_LINK_UNPAIRED:case MUSE_LINK_PAIRING:return PASSPORT_AGENT_UNPAIRED;
+        case MUSE_LINK_UNPAIRED:case MUSE_LINK_PAIRING: {
+            /* Without an SDK token BLE stays off: the token must come first. */
+            const char *token=muse_link_sdk_token();
+            return token && *token?PASSPORT_AGENT_UNPAIRED:PASSPORT_AGENT_NO_TOKEN;
+        }
         case MUSE_LINK_CONFIRM:return PASSPORT_AGENT_CONFIRM;
         case MUSE_LINK_ONLINE:return muse_hatch_ready()?PASSPORT_AGENT_READY:PASSPORT_AGENT_CONNECTING;
         case MUSE_LINK_OFFLINE:case MUSE_LINK_ERROR:return PASSPORT_AGENT_OFFLINE;

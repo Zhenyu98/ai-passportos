@@ -170,7 +170,8 @@ static void run(void *arg) {
                     }
                 } else {
                     passport_agent_copy(model.detail,sizeof model.detail,
-                        model.connection==PASSPORT_AGENT_UNPAIRED?"在 Muse 手机应用中添加设备":"连接尚未就绪，请稍候");model.revision++;
+                        model.connection==PASSPORT_AGENT_UNPAIRED?"在 Muse 手机应用中添加设备":
+                        model.connection==PASSPORT_AGENT_NO_TOKEN?"请先用数据线写入 Muse token":"连接尚未就绪，请稍候");model.revision++;
                 }
             } else if(job.action==PASSPORT_AGENT_SAVE_RESULT || job.action==PASSPORT_AGENT_SAVE_TEXT) {
                 const char *value=job.action==PASSPORT_AGENT_SAVE_TEXT?job.text:model.journal.result;

@@ -370,6 +370,15 @@ int main(int argc,char **argv) {
     agent.connection=PASSPORT_AGENT_READY;agent.revision++;
     passport_ui_agent_snapshot(&agent);assert(passport_ui_render(&model,&record,75,true,1761004800));
     assert(!has_text(lv_screen_active(),"网络已断开") && has_text(lv_screen_active(),"按 OK 说话"));
+    /* No SDK token: BLE stays off, so ask for the token rather than a pairing. */
+    char kept_reply[sizeof agent.reply];strcpy(kept_reply,agent.reply);
+    agent.state=agent.connection=PASSPORT_AGENT_NO_TOKEN;agent.reply[0]=0;agent.revision++;
+    passport_ui_agent_snapshot(&agent);assert(passport_ui_render(&model,&record,75,true,1761004800));
+    assert(has_text(lv_screen_active(),"请先用数据线写入 Muse token"));
+    assert(!has_text(lv_screen_active(),"按 OK 说话"));
+    lv_refr_now(display);check_agent_canvas();dump(argv[1],"agent-no-token");
+    agent.state=PASSPORT_AGENT_REPLY;agent.connection=PASSPORT_AGENT_READY;strcpy(agent.reply,kept_reply);agent.revision++;
+    passport_ui_agent_snapshot(&agent);assert(passport_ui_render(&model,&record,75,true,1761004800));
     agent.voice=PASSPORT_VOICE_UNCONFIGURED;agent.revision++;
     passport_ui_agent_snapshot(&agent);assert(passport_ui_render(&model,&record,75,true,1761004800));
     assert(has_text(lv_screen_active(),"仅文字回复 · 完整见手机"));

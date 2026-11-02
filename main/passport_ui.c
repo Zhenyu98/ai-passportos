@@ -274,6 +274,7 @@ static void agent_update(void) {
         switch(agent_view.state) {
             case PASSPORT_AGENT_UNAVAILABLE:content="请安装 Muse 接入固件";break;
             case PASSPORT_AGENT_UNPAIRED:content="请在 Muse 手机应用中添加设备";break;
+            case PASSPORT_AGENT_NO_TOKEN:content="请先用数据线写入 Muse token";break;
             case PASSPORT_AGENT_CONNECTING:content="正在连接…";break;
             case PASSPORT_AGENT_OFFLINE:content="网络已断开，请检查 Wi-Fi";break;
             case PASSPORT_AGENT_RECORDING:content="我在听…";break;
@@ -300,6 +301,7 @@ static void agent_update(void) {
             switch(agent_view.connection) {
                 case PASSPORT_AGENT_UNAVAILABLE:note="需要 Muse 接入固件";break;
                 case PASSPORT_AGENT_UNPAIRED:note="请先在手机配对";break;
+                case PASSPORT_AGENT_NO_TOKEN:note="请先写入 token";break;
                 case PASSPORT_AGENT_OFFLINE:note="网络已断开";break;
                 default:note="正在连接…";break;
             }

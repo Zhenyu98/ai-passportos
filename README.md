@@ -9,8 +9,8 @@
 <p align="center">
   <strong>Animated identity card</strong> ·
   <strong>Muse AI assistant</strong> ·
-  <strong>Landscape mini game</strong> ·
-  <strong>Your own character</strong>
+  <strong>Contact QR card</strong> ·
+  <strong>Landscape mini game</strong>
 </p>
 
 <p align="center">
@@ -23,8 +23,6 @@
 <p align="center">
   <img src="assets/images/ai-passportos-hero.png" alt="AI PassportOS screens: animated identity card, Muse reply, contact QR card, Bund night-view avatar, landscape mini game" width="94%">
 </p>
-
-<p align="center"><sub>All screens are host renders of the real firmware UI. The sample profile is fictional; the contact QR points to this repository.</sub></p>
 
 ## What it does
 

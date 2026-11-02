@@ -3,14 +3,14 @@
 <h1 align="center">AI PassportOS</h1>
 
 <p align="center">
-  <strong>把 FoloToy AI Passport 变成一张多功能 AI 工牌的开源固件。</strong>
+  <strong>给 FoloToy AI Passport 用的开源固件，让它变成一张多功能 AI 工牌。</strong>
 </p>
 
 <p align="center">
   <strong>动态身份卡</strong> ·
   <strong>Muse AI 助理</strong> ·
-  <strong>横屏小游戏</strong> ·
-  <strong>换上你自己的角色</strong>
+  <strong>名片二维码</strong> ·
+  <strong>横屏小游戏</strong>
 </p>
 
 <p align="center">
@@ -24,36 +24,36 @@
   <img src="assets/images/ai-passportos-hero.png" alt="AI PassportOS 界面：动态身份卡、Muse 助理回复、名片二维码、外滩夜景头像、横屏小游戏" width="94%">
 </p>
 
-<p align="center"><sub>以上是真实固件界面在电脑上的渲染截图。示例资料为虚构，名片二维码指向本仓库。</sub></p>
-
 ## 它能做什么
 
-一块工牌，几种用法：开机是会动的身份卡，按一下进入 Muse AI 助理，闲下来还能
-横过来玩一局小游戏。所有操作都用设备上的三个按键完成。
+开机是会动的身份卡，按一下就能跟 Muse 说话，闲下来还能把工牌横过来玩两局。
+全程只用机身上的三个按键。
 
 ### 动态身份卡
 
-姓名、职位、单位和简介，支持中英文，带实时时钟与电量。头像是会呼吸、眨眼、
-点头的像素角色，也可以换成外滩夜景这样的动态横幅；布局随头像自动调整。
-底部 QR 按钮打开全屏名片图，比如微信名片二维码：在手机配置页上传照片，拖动、缩放选好范围即可。
+屏幕上是你的姓名、职位、单位和简介，中英文都行，顶上有时钟和电量。头像是个会
+呼吸、眨眼、点头的像素小人，也可以换成外滩夜景的动态横幅，排版会跟着头像自己调整。
+
+按 QR 键能全屏亮出名片，比如微信二维码：在手机配置页传一张截图，拖一拖、缩放一下就行。
 
 ### Muse AI 助理
 
-Muse 接入基于 Meta 官方的 [Muse Gadget SDK](https://github.com/facebookincubator/muse-gadget-sdk)（固定在提交
-[`e6fe517`](https://github.com/facebookincubator/muse-gadget-sdk/tree/e6fe5174092702ffddae6f90759a38d55a4ebae1)），编译时按固定版本获取，不随本仓库分发。
-在 Muse 手机应用里用蓝牙配对后，工牌就是 Muse 的随身入口：按 OK 说话，
-屏幕上显示回复预览，完整内容留在手机里。回复可以存成本地笔记，最近八条随时翻看。
+在 Muse 手机应用里用蓝牙配对后，按 OK 说话，回复的开头会显示在工牌上，完整内容
+在手机里看。有用的回复可以存成本地笔记，工牌上能翻最近八条。
 
 <p align="center">
   <img src="assets/images/showcase-muse.png" alt="Muse 助理：录音、回复、任务结果、本地笔记" width="94%">
 </p>
 
-Muse 还能通过一组受限的设备工具操作工牌：查状态、调亮度、存笔记、切换页面，
-除此之外不能做别的事。
+Muse 也能反过来操作工牌，但只开放了四件事：查状态、调亮度、存笔记、切页面。
+
+这部分基于 Meta 官方的 [Muse Gadget SDK](https://github.com/facebookincubator/muse-gadget-sdk)，
+固定在提交 [`e6fe517`](https://github.com/facebookincubator/muse-gadget-sdk/tree/e6fe5174092702ffddae6f90759a38d55a4ebae1)。
+SDK 在编译时下载，本仓库不附带它的源码。
 
 ### 横屏小游戏
 
-隐藏菜单里有一个横版闯关小游戏。把工牌横过来，上下键左右移动，OK 跳跃。
+菜单里藏了一个横版闯关小游戏。横着拿工牌，上下键左右走，OK 跳，空中还能再跳一次。
 
 <p align="center">
   <img src="assets/images/showcase-game.png" alt="横屏小游戏：游戏中和开始界面" width="66%">
@@ -75,8 +75,7 @@ Muse 还能通过一组受限的设备工具操作工牌：查状态、调亮度
 | 智能体页 | 提示需要 Muse 固件 | Muse 配对、语音笔记、回复 |
 | 资料编辑 | 开放热点 `Badge-XXXX` | 局域网页面加一次性访问码 |
 
-两者把资料、图片和设置存在同一组 NVS 记录和 Flash 分区里，用分段刷写切换
-固件时数据会保留。
+两版固件共用同一套资料存储，用分段刷写换固件时，资料、图片和设置都不会丢。
 
 ## 快速开始
 
@@ -88,17 +87,17 @@ Muse 还能通过一组受限的设备工具操作工牌：查状态、调亮度
    python -m esptool --chip esp32c3 -p <端口> write-flash 0x0 FoloToy-AI-Passport-full.bin
    ```
 
-3. 在身份卡页长按 OK 两秒，选择「Wi-Fi 配置」。默认固件让手机连接
-   `Badge-XXXX` 热点；Muse 固件需先在 Muse 应用中配对，再选「打开资料配置页面」。
-   在这个页面里设置资料、头像和二维码图片。
+3. 在身份卡页长按 OK 两秒，选「Wi-Fi 配置」。默认固件会开一个 `Badge-XXXX` 热点，
+   手机连上即可；Muse 固件要先在 Muse 应用里配对，再选「打开资料配置页面」。
+   资料、头像和名片图都在这个页面里改。
 
 编译 Muse 固件、设置 Muse SDK token 和配对，见 [Muse 接入指南](docs/assets/passport-muse-integration.zh_CN.md)。
 按键操作和 USB 协议见 [使用说明](docs/assets/passport-os-v0.1-user-guide.zh_CN.md)。
 
 ## AI 助手一键配置
 
-仓库为 AI 辅助开发准备好了 `AGENTS.md` 和 `skills/`。把下面这段发给 Codex、
-Claude Code 或其他编程助手：
+仓库里有 `AGENTS.md` 和 `skills/`，编程助手读得懂。把下面这段发给 Codex、
+Claude Code 或别的编程助手：
 
 ```text
 请阅读 https://github.com/Zhenyu98/ai-passportos 里的 docs/agent-setup.zh_CN.md，
@@ -110,31 +109,28 @@ Claude Code 或其他编程助手：
 
 ## Muse 使用须知
 
-- 本项目是个人开源项目，不是 Meta 制作的，也没有得到 Meta 的认可或支持。Muse
-  是 Meta 的产品和商标。
-- 发布的固件**不含任何 SDK token**。每位用户需要在
-  [gadgets.muse.ai](https://gadgets.muse.ai/settings/sdk-tokens) 申请自己的 token，
-  再用 USB 写入工牌（见 [Muse 接入指南](docs/assets/passport-muse-integration.zh_CN.md)）。
-- 使用 token 须遵守 [Gadget SDK 条款](https://gadgets.muse.ai/sdk-terms)：token 仅限个人使用，不要分享或公开；
-  同一个 token 最多用于 50 台设备；不得把装有 token 的设备出售或公开上架。
+- 这是个人开源项目，不是 Meta 做的，也没有得到 Meta 的认可或支持。Muse 是 Meta
+  的产品和商标。
+- 发布的固件里没有 SDK token。请到 [gadgets.muse.ai](https://gadgets.muse.ai/settings/sdk-tokens)
+  申请你自己的 token，再用 USB 写进工牌，步骤见 [Muse 接入指南](docs/assets/passport-muse-integration.zh_CN.md)。
+- token 的使用要遵守 [Gadget SDK 条款](https://gadgets.muse.ai/sdk-terms)：只能自己用，别分享或公开；
+  一个 token 最多绑 50 台设备；装了 token 的设备不能卖，也不能公开上架。
 
 ## 已知限制
 
-- Muse 返回的是文字。要朗读出来，需要你自己提供一个语音合成接口
-  （见[语音说明](docs/assets/passport-agent-voice.zh_CN.md)）；仓库附带一个用于本地
-  测试的 Windows 桥接。
-- ESP32-C3 没有 PSRAM。本版本的内存优化后，Muse 控制会话已经放得下，但完整
-  的一轮语音对话还没在真机上验证。
-- 长回复、Muse 历史和账号任务保留在 Muse 手机应用里，工牌只保留有限长度的
-  预览。
+- Muse 回的是文字。想让工牌念出来，得自己接一个语音合成服务（见[语音说明](docs/assets/passport-agent-voice.zh_CN.md)），
+  仓库里有一个本地测试用的 Windows 桥接。
+- ESP32-C3 没有 PSRAM，内存很紧。这一版省出了约 28 KB，Muse 的控制连接已经放得下，
+  但完整的一轮语音对话还没在真机上跑通。
+- 长回复、Muse 历史和账号任务都留在手机上，工牌只显示一段预览。
 
 ## 致谢
 
-- [FoloToy AI Passport](https://github.com/FoloToy/ai-passport) —— 硬件、BSP 以及
-  本项目所基于的开源固件模板（MIT）。
-- Meta 的 [Muse Gadget SDK](https://github.com/facebookincubator/muse-gadget-sdk) ——
-  配对、Wi-Fi 和加密控制会话（Apache-2.0）。编译时按固定提交获取并打补丁，不随
-  仓库分发源码。使用 Muse 须遵守 [Gadget SDK 条款](https://gadgets.muse.ai/sdk-terms)。
+- [FoloToy AI Passport](https://github.com/FoloToy/ai-passport)：硬件、BSP，以及本项目
+  起步用的开源固件模板（MIT）。
+- Meta 的 [Muse Gadget SDK](https://github.com/facebookincubator/muse-gadget-sdk)：配对、
+  Wi-Fi 和加密控制连接（Apache-2.0）。编译时按固定提交下载并打补丁，本仓库不附带
+  源码。使用 Muse 须遵守 [Gadget SDK 条款](https://gadgets.muse.ai/sdk-terms)。
 - [ESP-IDF](https://github.com/espressif/esp-idf)、[LVGL](https://lvgl.io) 和
   [Noto Sans SC](https://fonts.google.com/noto/specimen/Noto+Sans+SC)（OFL）。
 

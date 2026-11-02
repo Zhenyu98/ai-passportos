@@ -6,7 +6,7 @@ Date: 2026-10-20. Status: approved by the user on 2026-10-20; application implem
 
 ## Purpose and scope
 
-Build a wearable research identity card that starts on the badge and remains useful offline. Deliver the badge, Profile, personal-homepage QR code, persistent local data, and a small animated avatar. The user has deferred XiaoZhi voice and MCP integration in favor of a later Muse integration.
+Build a wearable multi-function identity badge that starts on the badge and remains useful offline. Deliver the badge, Profile, personal-homepage QR code, persistent local data, and a small animated avatar. The user has deferred XiaoZhi voice and MCP integration in favor of a later Muse integration.
 
 Voice notes remain a product requirement, but their former XiaoZhi transcription dependency must be replaced before implementation and acceptance. Muse, transcription, phone BLE editing, and laboratory control are outside this increment. Do not describe this increment as the complete original voice-enabled v0.1.
 
@@ -24,7 +24,7 @@ Use a 240-by-320 portrait layout: dark navy, light text, a restrained teal accen
 
 | Page | Content |
 | --- | --- |
-| Badge | Header time and battery; centered 64-by-64 avatar; name, academic title, wrapped research interests; page indicator. |
+| Badge | Header time and battery; centered 64-by-64 avatar; name, role, wrapped organization/tag line; page indicator. |
 | Profile | Name, title, research interests, biography; button scrolling for long content. |
 | Homepage | High-contrast QR code and readable destination host, or an explicit unset state. |
 | Menu | Brightness, About, Return; no inactive voice-service entry. |

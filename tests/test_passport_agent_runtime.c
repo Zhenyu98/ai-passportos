@@ -107,6 +107,30 @@ passport_speech_result_t passport_speech_http(const char *text,const passport_sp
 }
 static const passport_agent_transport_t ops={.connection=connection_state,.confirm=confirm,.begin=begin_turn,
     .audio=audio,.end=end_turn,.cancel=cancel_turn,.event=next_event,.confirmation=pending,.repair=repair};
+static unsigned models_read;
+static void read_model(const passport_agent_model_t *m) {
+    assert(m==&view && !((sem_t *)view_lock)->value); /* the caller holds the lock */
+    models_read++;
+}
+static void test_light_readers(void) {
+    assert(passport_agent_start(&ops)==ESP_OK);
+    view.state=PASSPORT_AGENT_RECORDING;view.voice=PASSPORT_VOICE_PLAYING;view.confirmation=42;
+    passport_agent_status_t status={0};
+    assert(passport_agent_status(&status));
+    assert(status.state==PASSPORT_AGENT_RECORDING && status.voice==PASSPORT_VOICE_PLAYING && status.confirmation==42);
+    assert(passport_agent_read(read_model) && models_read==1 && ((sem_t *)view_lock)->value);
+    /* A busy model is skipped rather than waited on. */
+    assert(xSemaphoreTake(view_lock,0));
+    status.state=PASSPORT_AGENT_READY;
+    assert(!passport_agent_status(&status) && status.state==PASSPORT_AGENT_READY);
+    assert(!passport_agent_read(read_model) && models_read==1);
+    xSemaphoreGive(view_lock);
+    assert(!passport_agent_status(NULL) && !passport_agent_read(NULL));
+    scenario=0;step=9;
+    if(!setjmp(parked)) entry(NULL);
+    assert(passport_agent_stop()==ESP_OK && !live_tasks);
+    models_read=0;
+}
 static void execute(unsigned which) {
     step=reads=begins=ends=cancels=confirmations=repairs=spoken=play_writes=0;scenario=which;audio_sleeping=false;
     queued_audio=played_audio=drains=clipped=0;
@@ -122,6 +146,7 @@ static void execute(unsigned which) {
     assert(passport_agent_stop()==ESP_OK && !worker && !jobs && !view_lock && !live_tasks);
 }
 int main(void) {
+    test_light_readers();
     execute(1);assert(begins==1 && ends==0 && cancels==1 && reads<=2);
     execute(2);assert(begins==1 && ends==1 && cancels==0);
     assert(stored && !strcmp(disk.result,"finished task"));
@@ -142,6 +167,9 @@ int main(void) {
     assert(!passport_agent_action(PASSPORT_AGENT_TOGGLE,NULL));
     passport_agent_model_t snapshot;
     assert(!passport_agent_snapshot(&snapshot));
+    /* The lighter readers refuse a stopping model the same way. */
+    passport_agent_status_t status;
+    assert(!passport_agent_status(&status) && !passport_agent_read(read_model) && !models_read);
     if(!setjmp(parked)) entry(NULL);
     assert(passport_agent_stop()==ESP_OK && !live_tasks);
     puts("Agent worker cancellation, persistence, reconnect and shutdown: PASS");return 0;

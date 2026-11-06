@@ -290,6 +290,16 @@ int main(int argc,char **argv) {
         assert(!passport_ui_render(&model,&record,-1,false,0));
         assert(display->screen_cnt==screens && passport_ui_page_buffers()==0);
     }
+    /* Ten-level brightness page at both ends and the default. */
+    model.page=PASSPORT_PAGE_BRIGHTNESS;
+    static const uint8_t bright_levels[]={10,60,100};
+    for(unsigned i=0;i<sizeof bright_levels;i++) {
+        model.brightness=bright_levels[i];
+        assert(passport_ui_render(&model,&record,75,true,1761004800));lv_refr_now(display);
+        char bright_name[24];snprintf(bright_name,sizeof bright_name,"brightness-%u",bright_levels[i]);
+        dump(argv[1],bright_name);
+    }
+    model.brightness=60;
     model.page=PASSPORT_PAGE_BADGE;
     assert(passport_ui_render(&model,&record,75,true,1761004800)); lv_refr_now(display); dump(argv[1],"badge-live");
     const char *name=record.profile.name[0]?record.profile.name:"姓名未设置";

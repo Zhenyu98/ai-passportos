@@ -14,6 +14,9 @@ AI PassportOS 也可以作为独立的 ESP-IDF 6.0.1 固件运行在 Muse Gadget
 - 在身份卡页长按 OK 两秒打开隐藏菜单，包含显示亮度、关于、Wi-Fi 配置、游戏、任务结果、本地笔记和返回。
 - 最近一次完成的任务结果和最新八条本地笔记在重启后保留。
 - Agent 页增加角色状态动画，并通过已配置的 TTS 接口流式朗读回复；见[Agent 语音配置](passport-agent-voice.zh_CN.md)。不会同步完整的 Muse 账号历史。
+- 语音笔记发到工牌专用的 Muse 旁聊而不是主聊天，工牌也只订阅这个旁聊。这段对话在 Muse 应用中显示为旁聊，并保留自己的历史。
+- 聊天订阅可能发来约 16 KB 的数据帧，与回复长度无关：实测是列出近期审批记录的 `approvals.snapshot` 事件，一订阅就会到达，新旁聊也一样。SDK 给本板的 12 KB 会话缓冲放不下，这种帧会断开会话并丢失回复，因此本固件把缓冲提高到 16.6 KB，并从 Passport 自身腾出相应内存：USB 行缓冲和游戏状态只在使用时才申请。放不下的超长聊天行会被跳过并记入日志。
+- 屏幕按 SDK 保存的闲置设置（`sleep_s`，默认 120 秒，0 表示永不）自动熄灭。Passport 替换了 SDK 自带的界面，因此由 Passport 自己应用这项设置。熄屏期间 Wi-Fi 降到 SDK 的 `MUSE_WIFI_REST` 档，保持无线连接、网络校时和控制会话，延迟最多增加约一秒。哪些情况会亮屏见[使用说明](passport-os-v0.1-user-guide.zh_CN.md)。
 
 默认 ESP-IDF 5.5.3 工程保持不变且仍可构建。它不包含 Muse 传输，因此智能体页会提示需要 Muse 固件。
 
@@ -169,7 +172,7 @@ python tools\configure_passport_muse.py --port COM7 --token-file build\muse-toke
 
 在身份卡页长按 OK 两秒（不论当前高亮哪个底部按钮）打开菜单；在其他页面同样长按会返回身份卡。菜单项依次为：
 
-1. **显示亮度** — 在 30%、60%、90% 间循环并保存。
+1. **显示亮度** — 用上/下键在 10% 到 100% 间按每级 10% 调节并保存。
 2. **关于** — 产品、版本和板卡信息。
 3. **Wi-Fi 配置** — 见下文。
 4. **小游戏** — 已有的游戏页。
@@ -221,7 +224,7 @@ HTTP 传输，因此应在可信局域网使用。
 | 工具 | 参数 | 行为 |
 | --- | --- | --- |
 | `passport.status` | 无 | 读取当前设备状态。 |
-| `passport.brightness` | `percent`：数字，且必须正好是 30、60 或 90 | 排队修改亮度。 |
+| `passport.brightness` | `percent`：数字，必须是 10 到 100 之间 10 的倍数 | 排队修改亮度。 |
 | `passport.note` | `text`：非空 UTF-8 字符串，最长 255 字节 | 排队保存一条本地笔记。 |
 | `passport.open` | `page`：`badge`、`agent`、`qr`、`menu`、`tasks`、`notes` 之一 | 排队打开某个设备页面。 |
 
@@ -230,14 +233,14 @@ HTTP 传输，因此应在可信局域网使用。
 只读工具，返回已经生效的状态：
 
 - `battery_percent`：数字；电量读取不可用时为 `null`。
-- `brightness_percent`：已生效的亮度，通常为 30、60 或 90。
+- `brightness_percent`：已生效的亮度，为 10 到 100 之间 10 的倍数。
 - `page`：`badge`、`qr`、`menu`、`brightness`、`about`、`game`、`agent`、`tasks`、`notes` 之一。
 
 排队修改亮度或页面后，可轮询该工具确认是否已经生效。`battery_percent` 为 `null` 表示电量计不存在或读数无效，不代表电量为 0。
 
 ### `passport.brightness`
 
-- `percent` 必须是 JSON 数字，且精确等于 30、60 或 90。小数值、字符串、`null` 和其他数字都会以 `percent must be exactly 30, 60 or 90` 拒绝。
+- `percent` 必须是 JSON 数字，且是 10 到 100 之间 10 的倍数。小数值、字符串、`null` 和其他数字都会以 `percent must be a multiple of 10 from 10 to 100` 拒绝。
 - 设备输入所有者已停止或队列已满时，调用失败并返回 `Device is busy or stopping; command not accepted`。
 - 成功只表示已排队。UI 之后应用该亮度，单写入存储路径再保存；响应不代表屏幕已改变，也不代表已写入 Flash。
 
@@ -295,7 +298,7 @@ HTTP 传输，因此应在可信局域网使用。
 本文未验证：
 
 - Muse 固件的构建、主机测试和真机行为另行报告；本页不记录构建已通过。
-- 配对、真实 Muse 回合、回复延迟、内存余量与峰值、麦克风和扬声器质量、Wi-Fi 共存，以及重新配对的恢复路径都需要真机测试。主机测试不等于硬件验收。
+- 配对、真实 Muse 回合、回复延迟、内存余量与峰值、麦克风和扬声器质量、Wi-Fi 共存、熄屏电流，以及重新配对的恢复路径都需要真机测试。主机测试不等于硬件验收。
 
 ## 排障
 
@@ -317,7 +320,6 @@ HTTP 传输，因此应在可信局域网使用。
 
 ## 相关文档
 
-- [Passport Muse 设计](../superpowers/specs/2026-10-23-passport-muse-design.zh_CN.md)与[实施计划](../superpowers/plans/2026-10-23-passport-muse.zh_CN.md)。
 - [AI PassportOS v0.1 使用说明](passport-os-v0.1-user-guide.zh_CN.md)：共享应用的按键、资料、图片和 USB 协议。
 - [固件布局](../development/engineering/firmware-layout.zh_CN.md)：分区地址、合并镜像与已存数据策略。
 - [构建与测试](../development/engineering/build-and-test.zh_CN.md)：默认固件的校验命令。

@@ -28,7 +28,7 @@ static void command(cJSON *all,const char *name,const char *desc,const char *par
 void passport_muse_register(cJSON *all) {
     command(all,"passport.status","Read the badge battery percent, screen brightness and current page.",NULL,NULL,NULL);
     command(all,"passport.brightness","Queue a badge brightness change. Acceptance is not confirmation of persistence.",
-        "percent","number","Exactly 30, 60 or 90 percent.");
+        "percent","number","A multiple of 10 from 10 to 100 percent.");
     command(all,"passport.note","Queue saving a short note locally on the badge; keeps the newest eight notes. Acceptance does not confirm storage.",
         "text","string","Nonempty UTF-8 text, at most 255 bytes. Summarize longer material first.");
     command(all,"passport.open","Queue opening a named badge page. This does not cancel an already submitted cloud task.",
@@ -49,8 +49,10 @@ cJSON *passport_muse_command(const char *name,cJSON *params) {
     }
     if(!strcmp(name,"passport.brightness")) {
         cJSON *v=cJSON_GetObjectItemCaseSensitive(params,"percent");
-        if(!cJSON_IsNumber(v) || (v->valuedouble!=30 && v->valuedouble!=60 && v->valuedouble!=90))
-            return result(false,"percent must be exactly 30, 60 or 90");
+        /* Range first: the cast below is undefined for an out-of-range double. */
+        if(!cJSON_IsNumber(v) || v->valuedouble<PASSPORT_BRIGHTNESS_MIN || v->valuedouble>PASSPORT_BRIGHTNESS_MAX ||
+           v->valuedouble!=(double)(unsigned)v->valuedouble || !passport_brightness_valid((unsigned)v->valuedouble))
+            return result(false,"percent must be a multiple of 10 from 10 to 100");
         return result(passport_app_remote_brightness((unsigned)v->valuedouble),"Device is busy or stopping; command not accepted");
     }
     if(!strcmp(name,"passport.note")) {

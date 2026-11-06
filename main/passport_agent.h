@@ -24,6 +24,17 @@ esp_err_t passport_agent_stop(void);
 bool passport_agent_action(unsigned action,const char *text);
 bool passport_agent_confirm_pairing(uint32_t displayed_request);
 bool passport_agent_snapshot(passport_agent_model_t *);
+/* The few fields the application polls, without a second copy of the model. */
+typedef struct {
+    passport_agent_state_t state;
+    passport_voice_state_t voice;
+    uint32_t confirmation;
+} passport_agent_status_t;
+bool passport_agent_status(passport_agent_status_t *);
+/* Calls read with the published model under its lock, so the display needs no
+ * intermediate copy. read must be short; the voice worker waits on this lock.
+ * False when the model is busy or stopping, without calling read. */
+bool passport_agent_read(void (*read)(const passport_agent_model_t *));
 /* Page visibility controls autoplay; safe from the UI owner without LVGL. */
 void passport_agent_set_visible(bool);
 /* Default firmware has no transport; the Muse build supplies the strong hook. */

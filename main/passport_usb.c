@@ -6,6 +6,7 @@
 #include "freertos/task.h"
 #include <stdatomic.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 static TaskHandle_t s_task;
@@ -14,25 +15,29 @@ static passport_service_fn s_service;
 static void *s_user;
 static bool s_driver_owned;
 static atomic_bool s_stop_requested;
-static passport_line_reader_t s_reader;
-static char s_response[PASSPORT_LINE_MAX];
+/* Allocated only while a host is talking: USB configuration is rare, and these
+ * 8 KB are what the Muse session needs to hold a whole chat frame. */
+static passport_line_reader_t *s_reader;
 __attribute__((weak)) bool passport_usb_external_line(const char *line,size_t length) {
     (void)line;(void)length;return false;
 }
 
 static void send_reply(passport_reply_t *reply) {
     size_t size=0;
-    if (passport_protocol_reply(reply,s_response,sizeof s_response,&size)!=PASSPORT_OK) {
+    char *response=malloc(PASSPORT_LINE_MAX);
+    if (!response) return; /* The host's request times out and can be retried. */
+    if (passport_protocol_reply(reply,response,PASSPORT_LINE_MAX,&size)!=PASSPORT_OK) {
         reply->status=PASSPORT_ERR_CAPACITY;
         reply->glyph_count=0;
-        if (passport_protocol_reply(reply,s_response,sizeof s_response,&size)!=PASSPORT_OK) return;
+        if (passport_protocol_reply(reply,response,PASSPORT_LINE_MAX,&size)!=PASSPORT_OK) {free(response);return;}
     }
     /* Leave the boot console's nonblocking VFS unchanged. Drain the response
      * while holding its FILE lock so normal logs cannot split a JSON line. */
     flockfile(stdout);
-    int sent=usb_serial_jtag_write_bytes(s_response,size,pdMS_TO_TICKS(100));
+    int sent=usb_serial_jtag_write_bytes(response,size,pdMS_TO_TICKS(100));
     if (sent==(int)size) (void)usb_serial_jtag_wait_tx_done(pdMS_TO_TICKS(100));
     funlockfile(stdout);
+    free(response);
 }
 
 static void usb_worker(void *arg) {
@@ -40,10 +45,13 @@ static void usb_worker(void *arg) {
     uint8_t chunk[128];
     while (!atomic_load(&s_stop_requested)) {
         int count=usb_serial_jtag_read_bytes(chunk,sizeof chunk,pdMS_TO_TICKS(10));
+        if (count<=0) continue;
+        if (!s_reader) s_reader=calloc(1,sizeof *s_reader);
+        if (!s_reader) continue; /* Dropped bytes fail the line's parse; the host retries. */
         for (int i=0;i<count && !atomic_load(&s_stop_requested);++i) {
             const char *line;
             size_t length;
-            passport_line_event_t event=passport_line_feed(&s_reader,chunk[i],&line,&length);
+            passport_line_event_t event=passport_line_feed(s_reader,chunk[i],&line,&length);
             if (event==PASSPORT_LINE_NONE) continue;
             passport_request_t request;
             passport_reply_t reply={0};
@@ -60,7 +68,9 @@ static void usb_worker(void *arg) {
             }
             send_reply(&reply);
         }
+        if (!s_reader->used && !s_reader->discard) {free(s_reader);s_reader=NULL;}
     }
+    free(s_reader);s_reader=NULL;
     /* No shared state access after this acknowledgement. The owner deletes us. */
     xSemaphoreGive(s_exited);
     vTaskSuspend(NULL);
@@ -89,7 +99,6 @@ esp_err_t passport_usb_start(passport_service_fn service, void *user) {
         s_driver_owned=true;
     }
     s_service=service; s_user=user;
-    memset(&s_reader,0,sizeof s_reader);
     atomic_store(&s_stop_requested,false);
     /* About 3.9 KB measured after info/get; the rest is margin. */
     if (xTaskCreate(usb_worker,"passport_usb",5632,NULL,4,&s_task)!=pdPASS) {

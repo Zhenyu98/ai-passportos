@@ -107,10 +107,11 @@
 #define BRIGHT_VALUE_Y 60
 #define BRIGHT_VALUE_H 30
 #define BRIGHT_BAR_X0 28
-#define BRIGHT_BAR_GAP 63
+#define BRIGHT_BAR_GAP 19
 #define BRIGHT_BAR_Y 116
-#define BRIGHT_BAR_W 58
+#define BRIGHT_BAR_W 14
 #define BRIGHT_BAR_H 8
+#define BRIGHT_BAR_COUNT (PASSPORT_BRIGHTNESS_MAX/PASSPORT_BRIGHTNESS_STEP)
 #define BRIGHT_HINT_Y 148
 
 /* About page (body-local). */
@@ -149,7 +150,9 @@ static int last_battery=-2;
 /* Game page state: declared here so clear_page can reset it. The whole
  * playfield is painted by one object's draw event, keeping the game page
  * inside the 32 KB LVGL pool shared with every other page. */
-static passport_game_t game;
+/* Only exists on the game page: the Muse session needs this RAM everywhere else. */
+static passport_game_t *game;
+static uint32_t game_best;
 static bool game_page;
 static uint32_t game_tick;
 static int game_overlay_state;
@@ -252,6 +255,7 @@ static void clear_page(void) {
     agent_content=NULL;
     agent_stage=agent_reply_label=agent_hint=agent_note=NULL;
     game_page=false;
+    if(game) {game_best=game->best;free(game);game=NULL;}
     if(avatar_timer) {lv_timer_delete(avatar_timer);avatar_timer=NULL;}
     passport_animation_hide(&animation);
     avatar_motion=avatar_temporary=false;
@@ -490,7 +494,7 @@ static void grect(lv_layer_t *layer,int gx,int gy,int gw,int gh,uint32_t color) 
 }
 /* Paint the whole world into the layer. Reads the game view only. */
 static void game_paint(lv_layer_t *layer) {
-    int cam=game.cam_q8>>8;
+    int cam=game->cam_q8>>8;
     uint32_t now=lv_tick_get();
     /* Sky furniture: repeating clouds, hills and bushes at world offsets. */
     unsigned di=0;
@@ -523,7 +527,7 @@ static void game_paint(lv_layer_t *layer) {
         }
     }
     /* Solid tiles, merged into horizontal runs per visible row. Pipe tiles
-     * are skipped here; pipes render from game.pipes below. */
+     * are skipped here; pipes render from game->pipes below. */
     int c0=cam/16,c1=(cam+319)/16;
     if(c0<0) c0=0;
     if(c1>=PASSPORT_GAME_COLS) c1=PASSPORT_GAME_COLS-1;
@@ -531,7 +535,7 @@ static void game_paint(lv_layer_t *layer) {
         int run=-1;
         uint8_t type=0;
         for(int c=c0;c<=c1+1;c++) {
-            uint8_t t=c<=c1?game.tile[row][c]:PASSPORT_TILE_EMPTY;
+            uint8_t t=c<=c1?game->tile[row][c]:PASSPORT_TILE_EMPTY;
             if(t>=PASSPORT_TILE_PIPE_TL) t=PASSPORT_TILE_EMPTY;
             if(c<=c1 && t!=PASSPORT_TILE_EMPTY && run>=0 && t==type) continue;
             if(run>=0) {
@@ -566,22 +570,22 @@ static void game_paint(lv_layer_t *layer) {
         }
     }
     /* Pipes: a wider rim on top of a straight body, from the pipe table. */
-    for(unsigned p=0;p<game.pipe_count;p++) {
-        int x=game.pipes[p].col*16-cam;
+    for(unsigned p=0;p<game->pipe_count;p++) {
+        int x=game->pipes[p].col*16-cam;
         if(x<-40||x>=320) continue;
-        int top=(13-game.pipes[p].height)*16;
+        int top=(13-game->pipes[p].height)*16;
         grect(layer,x-2,top,36,16,G_PIPE);
         grect(layer,x,top,32,2,G_PIPE_EDGE);
         grect(layer,x,top+16,28,208-(top+16),G_PIPE);
         grect(layer,x,top+16,2,208-(top+16),G_PIPE_EDGE);
     }
     /* Flagpole and castle. */
-    int fx=game.flag_col*16+7-cam;
+    int fx=game->flag_col*16+7-cam;
     if(fx>-16 && fx<320) {
         grect(layer,fx,48,2,144,G_POLE);
-        grect(layer,fx-10,game.flag_y_q8>>8,10,8,G_FLAG);
+        grect(layer,fx-10,game->flag_y_q8>>8,10,8,G_FLAG);
     }
-    int cx=game.castle_col*16-cam;
+    int cx=game->castle_col*16-cam;
     if(cx>-56 && cx<320) {
         grect(layer,cx,180,48,28,G_CASTLE);
         grect(layer,cx+18,194,12,14,G_DOOR);
@@ -593,7 +597,7 @@ static void game_paint(lv_layer_t *layer) {
     /* Coins spin by squeezing their width. */
     unsigned spin=(now/150)%2;
     for(unsigned i=0;i<PASSPORT_GAME_COIN_POOL;i++) {
-        const passport_game_coin_t *c=&game.coin[i];
+        const passport_game_coin_t *c=&game->coin[i];
         if(!c->active) continue;
         int x=(c->x_q8>>8)-cam;
         if(x<-16||x>=320) continue;
@@ -602,7 +606,7 @@ static void game_paint(lv_layer_t *layer) {
     }
     /* Goombas: dome plus dark feet; squashed ones flatten. */
     for(unsigned i=0;i<PASSPORT_GAME_GOOMBA_POOL;i++) {
-        const passport_game_goomba_t *e=&game.goombas[i];
+        const passport_game_goomba_t *e=&game->goombas[i];
         if(!e->active) continue;
         int x=(e->x_q8>>8)-cam;
         if(x<-20||x>=320) continue;
@@ -614,7 +618,7 @@ static void game_paint(lv_layer_t *layer) {
         }
     }
     /* Mushroom: red cap with a white spot on a cream stem. */
-    const passport_game_mushroom_t *m=&game.mushroom;
+    const passport_game_mushroom_t *m=&game->mushroom;
     if(m->active) {
         int x=(m->x_q8>>8)-cam,y=m->y_q8>>8;
         grect(layer,x,y,14,8,G_MUSH_CAP);
@@ -622,26 +626,26 @@ static void game_paint(lv_layer_t *layer) {
         grect(layer,x+2,y+8,10,6,G_MUSH_STEM);
     }
     for(unsigned i=0;i<PASSPORT_GAME_FRAGMENT_POOL;i++) {
-        const passport_game_fragment_t *f=&game.frag[i];
+        const passport_game_fragment_t *f=&game->frag[i];
         if(f->active) grect(layer,(f->x_q8>>8)-cam,f->y_q8>>8,6,6,G_BRICK);
     }
     for(unsigned i=0;i<PASSPORT_GAME_POPCOIN_POOL;i++) {
-        const passport_game_popcoin_t *p=&game.popcoin[i];
+        const passport_game_popcoin_t *p=&game->popcoin[i];
         if(p->active) grect(layer,(p->x_q8>>8)-cam,p->y_q8>>8,8,12,G_COIN);
     }
     /* Player: cap-face-eye-suit-shoes, blinking while invulnerable. */
-    if(!(game.invuln_ms && (now/100)%2==0)) {
-        int x=(game.px_q8>>8)-cam,y=game.py_q8>>8;
-        if(game.big) {
+    if(!(game->invuln_ms && (now/100)%2==0)) {
+        int x=(game->px_q8>>8)-cam,y=game->py_q8>>8;
+        if(game->big) {
             grect(layer,x,y,12,5,G_RED);
             grect(layer,x,y+5,12,6,G_SKIN);
-            grect(layer,x+(game.facing>0?8:2),y+6,2,2,G_EYE);
+            grect(layer,x+(game->facing>0?8:2),y+6,2,2,G_EYE);
             grect(layer,x,y+11,12,12,G_BLUE);
             grect(layer,x,y+23,12,4,G_SHOE);
         } else {
             grect(layer,x,y,12,4,G_RED);
             grect(layer,x,y+4,12,5,G_SKIN);
-            grect(layer,x+(game.facing>0?8:2),y+5,2,2,G_EYE);
+            grect(layer,x+(game->facing>0?8:2),y+5,2,2,G_EYE);
             grect(layer,x,y+9,12,4,G_BLUE);
             grect(layer,x,y+13,12,2,G_SHOE);
         }
@@ -680,7 +684,10 @@ static bool game_build(void) {
     game_overlay_hint=glabel(64,130,192,16,&passport_font_16,MUTED);
     game_overlay_hint2=glabel(64,150,192,16,&passport_font_16,MUTED);
     if(page_failed) return false;
-    passport_game_init(&game,lv_tick_get());
+    game=calloc(1,sizeof *game);
+    if(!game) {page_failed=true;return false;}
+    game->best=game_best;
+    passport_game_init(game,lv_tick_get());
     game_page=true; game_tick=0;
     game_overlay_state=-1;
     game_shown_score=game_shown_coins=game_shown_time=0xffffffffu;
@@ -689,11 +696,11 @@ static bool game_build(void) {
     return true;
 }
 static void game_overlay_update(void) {
-    int wanted=game.state==PASSPORT_GAME_READY?1:
-               game.state==PASSPORT_GAME_OVER?2:
-               (game.state==PASSPORT_GAME_CLEAR &&
-                game.clear_phase==PASSPORT_CLEAR_POSE && game.clear_ms>400)?3:0;
-    if(wanted==game_overlay_state && (wanted==0 || game_shown_score==game.score)) return;
+    int wanted=game->state==PASSPORT_GAME_READY?1:
+               game->state==PASSPORT_GAME_OVER?2:
+               (game->state==PASSPORT_GAME_CLEAR &&
+                game->clear_phase==PASSPORT_CLEAR_POSE && game->clear_ms>400)?3:0;
+    if(wanted==game_overlay_state && (wanted==0 || game_shown_score==game->score)) return;
     if(!game_overlay) {game_overlay_state=wanted; return;}
     if(wanted==0) {
         game_hide(game_overlay);game_hide(game_overlay_title);
@@ -710,19 +717,19 @@ static void game_overlay_update(void) {
         if(wanted==1) {
             lv_label_set_text(game_overlay_title,PASSPORT_TEXT_MENU_GAME);
             snprintf(line,sizeof line,"%s x%u · %s %lu",PASSPORT_TEXT_GAME_LIVES,
-                     game.lives,PASSPORT_TEXT_GAME_BEST,(unsigned long)game.best);
+                     game->lives,PASSPORT_TEXT_GAME_BEST,(unsigned long)game->best);
             lv_label_set_text(game_overlay_hint,PASSPORT_TEXT_GAME_READY);
             lv_label_set_text(game_overlay_hint2,PASSPORT_TEXT_GAME_EXIT);
         } else if(wanted==2) {
             lv_label_set_text(game_overlay_title,PASSPORT_TEXT_GAME_OVER);
             snprintf(line,sizeof line,"%s %lu · %s %lu",PASSPORT_TEXT_GAME_SCORE,
-                     (unsigned long)game.score,PASSPORT_TEXT_GAME_BEST,(unsigned long)game.best);
+                     (unsigned long)game->score,PASSPORT_TEXT_GAME_BEST,(unsigned long)game->best);
             lv_label_set_text(game_overlay_hint,PASSPORT_TEXT_GAME_RESTART);
             lv_label_set_text(game_overlay_hint2,PASSPORT_TEXT_GAME_EXIT);
         } else {
             lv_label_set_text(game_overlay_title,PASSPORT_TEXT_GAME_CLEAR);
             snprintf(line,sizeof line,"%s %lu · %s %lu",PASSPORT_TEXT_GAME_SCORE,
-                     (unsigned long)game.score,PASSPORT_TEXT_GAME_BEST,(unsigned long)game.best);
+                     (unsigned long)game->score,PASSPORT_TEXT_GAME_BEST,(unsigned long)game->best);
             lv_label_set_text(game_overlay_hint,PASSPORT_TEXT_GAME_NEXT);
         }
         lv_label_set_text(game_overlay_line,line);
@@ -733,27 +740,27 @@ static void game_frame(void) {
     uint32_t now=lv_tick_get();
     uint32_t dt=game_tick?lv_tick_elaps(game_tick):33;
     game_tick=now;
-    passport_game_step(&game,dt);
+    passport_game_step(game,dt);
     char buf[40];
-    if(game_shown_score!=game.score) {
-        snprintf(buf,sizeof buf,"%s %06lu",PASSPORT_TEXT_GAME_SCORE,(unsigned long)game.score);
+    if(game_shown_score!=game->score) {
+        snprintf(buf,sizeof buf,"%s %06lu",PASSPORT_TEXT_GAME_SCORE,(unsigned long)game->score);
         if(game_hud_score) lv_label_set_text(game_hud_score,buf);
-        game_shown_score=game.score;
+        game_shown_score=game->score;
     }
-    if(game_shown_coins!=game.coins) {
-        snprintf(buf,sizeof buf,"x%02u",game.coins);
+    if(game_shown_coins!=game->coins) {
+        snprintf(buf,sizeof buf,"x%02u",game->coins);
         if(game_hud_coins) lv_label_set_text(game_hud_coins,buf);
-        game_shown_coins=game.coins;
+        game_shown_coins=game->coins;
     }
-    if(game_shown_world!=game.loop) {
-        snprintf(buf,sizeof buf,"1-%u",game.loop);
+    if(game_shown_world!=game->loop) {
+        snprintf(buf,sizeof buf,"1-%u",game->loop);
         if(game_hud_world) lv_label_set_text(game_hud_world,buf);
-        game_shown_world=game.loop;
+        game_shown_world=game->loop;
     }
-    if(game_shown_time!=game.time) {
-        snprintf(buf,sizeof buf,"%s %u",PASSPORT_TEXT_GAME_TIME,game.time);
+    if(game_shown_time!=game->time) {
+        snprintf(buf,sizeof buf,"%s %u",PASSPORT_TEXT_GAME_TIME,game->time);
         if(game_hud_time) lv_label_set_text(game_hud_time,buf);
-        game_shown_time=game.time;
+        game_shown_time=game->time;
     }
     game_overlay_update();
     if(game_field) lv_obj_invalidate(game_field);
@@ -762,12 +769,12 @@ void passport_ui_game_key(passport_key_t key,passport_key_event_t event) {
     if(!game_page) return;
     /* Sideways grip: UP points left, DOWN points right, OK jumps. */
     bool press=event==PASSPORT_KEY_PRESS;
-    if(key==PASSPORT_KEY_UP) passport_game_left(&game,press);
-    else if(key==PASSPORT_KEY_DOWN) passport_game_right(&game,press);
-    else if(key==PASSPORT_KEY_OK) passport_game_jump(&game,press);
+    if(key==PASSPORT_KEY_UP) passport_game_left(game,press);
+    else if(key==PASSPORT_KEY_DOWN) passport_game_right(game,press);
+    else if(key==PASSPORT_KEY_OK) passport_game_jump(game,press);
 }
 void passport_ui_game_reset_input(void) {
-    if(game_page) passport_game_reset_input(&game);
+    if(game_page) passport_game_reset_input(game);
 }
 static const char *const WEEKDAY[]={"MON","TUE","WED","THU","FRI","SAT","SUN"};
 static bool build_page(const passport_model_t *m,const passport_record_t *r) {
@@ -837,7 +844,7 @@ static bool build_page(const passport_model_t *m,const passport_record_t *r) {
     } else if(m->page==PASSPORT_PAGE_BRIGHTNESS) {
         char value[16];snprintf(value,sizeof value,"%u%%",m->brightness);
         text(body,CONTENT_X,BRIGHT_VALUE_Y,CONTENT_W,BRIGHT_VALUE_H,value,&lv_font_montserrat_20,NEON,true);
-        for(unsigned i=0;i<3;i++) panel(body,BRIGHT_BAR_X0+(int)i*BRIGHT_BAR_GAP,BRIGHT_BAR_Y,BRIGHT_BAR_W,BRIGHT_BAR_H,m->brightness>=(i+1)*30?NEON:TRACK,4);
+        for(unsigned i=0;i<BRIGHT_BAR_COUNT;i++) panel(body,BRIGHT_BAR_X0+(int)i*BRIGHT_BAR_GAP,BRIGHT_BAR_Y,BRIGHT_BAR_W,BRIGHT_BAR_H,m->brightness>=(i+1)*PASSPORT_BRIGHTNESS_STEP?NEON:TRACK,4);
         text(body,CONTENT_X,BRIGHT_HINT_Y,CONTENT_W,24,PASSPORT_TEXT_BRIGHTNESS_HINT,&passport_font_16,MUTED,true);
     } else if(m->page==PASSPORT_PAGE_ABOUT) {
         text(body,CONTENT_X,ABOUT_TITLE_Y,CONTENT_W,24,"AI PassportOS",&lv_font_montserrat_20,INK,true);

@@ -257,6 +257,18 @@ bool passport_agent_snapshot(passport_agent_model_t *out) {
     if(atomic_load(&stopping) || !out || !view_lock || xSemaphoreTake(view_lock,0)!=pdTRUE) return api_finish(false);
     *out=view;xSemaphoreGive(view_lock);return api_finish(true);
 }
+bool passport_agent_status(passport_agent_status_t *out) {
+    atomic_fetch_add(&api_calls,1);
+    if(atomic_load(&stopping) || !out || !view_lock || xSemaphoreTake(view_lock,0)!=pdTRUE) return api_finish(false);
+    out->state=view.state;out->voice=view.voice;out->confirmation=view.confirmation;
+    xSemaphoreGive(view_lock);return api_finish(true);
+}
+bool passport_agent_read(void (*read)(const passport_agent_model_t *)) {
+    atomic_fetch_add(&api_calls,1);
+    if(atomic_load(&stopping) || !read || !view_lock || xSemaphoreTake(view_lock,0)!=pdTRUE) return api_finish(false);
+    read(&view);
+    xSemaphoreGive(view_lock);return api_finish(true);
+}
 esp_err_t passport_agent_stop(void) {
     if(!worker) return ESP_OK;
     atomic_store(&stopping,true);

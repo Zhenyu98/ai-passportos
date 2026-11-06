@@ -28,7 +28,7 @@ Use a 240-by-320 portrait layout: dark navy, light text, a restrained teal accen
 | Profile | Name, title, research interests, biography; button scrolling for long content. |
 | Homepage | High-contrast QR code and readable destination host, or an explicit unset state. |
 | Menu | Brightness, About, Return; no inactive voice-service entry. |
-| Brightness / About | Persisted 30%, 60%, 90% brightness, default 60%; application version and build information without identity secrets. |
+| Brightness / About | Ten persisted levels from 10% to 100% in 10% steps, default 60%; application version and build information without identity secrets. |
 
 | Input | Badge / Profile / Homepage | Menu and child pages |
 | --- | --- | --- |

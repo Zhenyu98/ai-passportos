@@ -46,6 +46,8 @@ vendored here.
 After Bluetooth LE pairing in the Muse app, the badge becomes a pocket entry to
 Muse: press OK to talk, read a reply preview on screen, and keep the full answer
 on your phone. Replies can be saved as local notes; the newest eight stay on the badge.
+Voice notes go to the badge's own side chat in the Muse app, so your main chat stays
+uncluttered. Muse may not carry the main chat's context into it.
 
 <p align="center">
   <img src="assets/images/showcase-muse.png" alt="Muse assistant: listening, reply, task result, local notes" width="94%">
@@ -69,6 +71,8 @@ UP/DOWN move, OK jumps.
 | --- | --- |
 | Configuration | Phone hotspot portal (default firmware) or LAN page with a one-time code (Muse firmware), plus a USB JSON protocol |
 | Network time | The Muse firmware sets the clock from NTP as soon as Wi-Fi is up |
+| Screen sleep | After two idle minutes the screen turns off while the clock and connection keep running; any button lights it again without acting on the page |
+| Brightness | Ten levels from 10% to 100%: UP brightens, DOWN dims |
 | Custom character | Hatch a character with Codex's `$hatch-pet` and convert it with one command ([skill](skills/passport-pet-avatar/SKILL.md)) |
 
 ## Works without Muse

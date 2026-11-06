@@ -8,7 +8,7 @@ void passport_model_reset_input(passport_model_t *m) {
 void passport_model_init(passport_model_t *m, uint8_t brightness) {
     memset(m, 0, sizeof *m);
     m->page = PASSPORT_PAGE_BADGE; m->return_page = PASSPORT_PAGE_BADGE;
-    m->brightness = brightness == 30 || brightness == 90 ? brightness : 60;
+    m->brightness = passport_brightness_valid(brightness) ? brightness : PASSPORT_BRIGHTNESS_DEFAULT;
     passport_model_reset_input(m);
 }
 
@@ -78,9 +78,15 @@ static passport_action_t on_click(passport_model_t *m, passport_key_t key) {
     } else if (m->page == PASSPORT_PAGE_BRIGHTNESS) {
         if (key == PASSPORT_KEY_OK) m->page = PASSPORT_PAGE_MENU;
         else {
-            unsigned index = m->brightness == 30 ? 0 : m->brightness == 90 ? 2 : 1;
-            index = (index + (key == PASSPORT_KEY_DOWN ? 1 : 2)) % 3;
-            m->brightness = (uint8_t)((index + 1) * 30);
+            /* UP brightens and DOWN dims; the ends stop rather than jump, and
+             * a press that changes nothing does not write to Flash. */
+            if (key == PASSPORT_KEY_UP) {
+                if (m->brightness >= PASSPORT_BRIGHTNESS_MAX) return PASSPORT_ACTION_NONE;
+                m->brightness += PASSPORT_BRIGHTNESS_STEP;
+            } else {
+                if (m->brightness <= PASSPORT_BRIGHTNESS_MIN) return PASSPORT_ACTION_NONE;
+                m->brightness -= PASSPORT_BRIGHTNESS_STEP;
+            }
             return PASSPORT_ACTION_SAVE_BRIGHTNESS;
         }
     } else if (m->page == PASSPORT_PAGE_ABOUT && key == PASSPORT_KEY_OK) {

@@ -129,6 +129,8 @@ display running or reinitialize a port whose previous task may still be alive.
 
 Before terminal deep sleep, stop new page work and hold the LVGL lock long enough to finish any current flush. `bsp_display_prepare_deep_sleep()` then sends display-off and Sleep In, stops the backlight PWM at low level, drives CS high and SCLK/MOSI/DC/backlight low, enables per-pin hold, and enables the ESP32-C3 global deep-sleep hold. `bsp_display_init()` disables the global and per-pin holds before SPI or LEDC takes ownership after wake. This terminal API is not a reversible display blanking operation and must be followed immediately by deep sleep or restart.
 
+For reversible blanking, set the backlight to 0, hold the LVGL lock, call `bsp_lvgl_pause(true)` to freeze the LVGL clock, then `bsp_display_power_save(true)` to send Sleep In. The panel keeps its display memory. To wake, call `bsp_display_power_save(false)`, then `bsp_lvgl_pause(false)`, and restore the backlight last. Each panel call blocks for about 100 ms. The chip keeps running, so only the panel and backlight current is saved.
+
 LVGL is not thread-safe. Timer callbacks in LVGL context may access objects directly. Button callbacks must not access LVGL; they enqueue input for the lifecycle task. The lifecycle task and other workers must use `bsp_lvgl_lock()`/`bsp_lvgl_unlock()` for short UI operations. Stop producers before deleting a page and clear static object pointers afterward.
 
 ## 6. ADC button ladder

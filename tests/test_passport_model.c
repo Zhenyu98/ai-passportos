@@ -55,11 +55,27 @@ int main(void) {
     /* Row 0: brightness. */
     click(&m, PASSPORT_KEY_OK, 900);
     assert(m.page == PASSPORT_PAGE_BRIGHTNESS);
-    assert(click(&m, PASSPORT_KEY_DOWN, 1000) == PASSPORT_ACTION_SAVE_BRIGHTNESS);
-    assert(m.brightness == 90);
-    click(&m, PASSPORT_KEY_UP, 1100); assert(m.brightness == 60);
-    click(&m, PASSPORT_KEY_UP, 1200); assert(m.brightness == 30);
-    click(&m, PASSPORT_KEY_UP, 1300); assert(m.brightness == 90);
+    /* UP brightens one level at a time and stops at 100%, saving only real changes. */
+    uint64_t at = 1000;
+    for (unsigned level = 70; level <= 100; level += 10) {
+        assert(click(&m, PASSPORT_KEY_UP, at += 100) == PASSPORT_ACTION_SAVE_BRIGHTNESS);
+        assert(m.brightness == level);
+    }
+    assert(click(&m, PASSPORT_KEY_UP, at += 100) == PASSPORT_ACTION_NONE && m.brightness == 100);
+    /* DOWN walks all ten levels down and stops at 10%. */
+    for (unsigned level = 90; level >= 10; level -= 10) {
+        assert(click(&m, PASSPORT_KEY_DOWN, at += 100) == PASSPORT_ACTION_SAVE_BRIGHTNESS);
+        assert(m.brightness == level);
+    }
+    assert(click(&m, PASSPORT_KEY_DOWN, at += 100) == PASSPORT_ACTION_NONE && m.brightness == 10);
+    /* Every level and the three older saved values load; anything else falls back. */
+    for (unsigned level = 0; level <= 255; level++) {
+        passport_model_t loaded;
+        passport_model_init(&loaded, (uint8_t)level);
+        bool expected = level >= 10 && level <= 100 && level % 10 == 0;
+        assert(passport_brightness_valid(level) == expected);
+        assert(loaded.brightness == (expected ? level : PASSPORT_BRIGHTNESS_DEFAULT));
+    }
     click(&m, PASSPORT_KEY_OK, 1400);
     assert(m.page == PASSPORT_PAGE_MENU);
     /* Row 1: about; OK returns to the menu. */

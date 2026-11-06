@@ -1,6 +1,6 @@
 include("${CMAKE_CURRENT_LIST_DIR}/../tools/cmake/passport_assets.cmake")
 idf_component_register(
-    SRCS "main.c" "passport_app.c" "passport_ui.c" "passport_model.c" "passport_animation.c" "passport_scene.c"
+    SRCS "main.c" "passport_app.c" "passport_screen.c" "passport_ui.c" "passport_model.c" "passport_animation.c" "passport_scene.c"
          "passport_game.c" "passport_profile.c" "passport_store.c" "passport_nvs.c"
          "passport_protocol.c" "passport_usb.c" "passport_qr.c"
          "passport_json.c" "passport_settings.c"

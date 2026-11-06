@@ -1,6 +1,6 @@
 get_filename_component(ROOT "${CMAKE_CURRENT_LIST_DIR}/../../.." ABSOLUTE)
 include("${ROOT}/tools/cmake/passport_assets.cmake")
-set(app_srcs passport_app passport_ui passport_model passport_animation passport_scene
+set(app_srcs passport_app passport_screen passport_ui passport_model passport_animation passport_scene
     passport_game passport_profile passport_store passport_nvs passport_protocol
     passport_usb passport_qr passport_json passport_settings passport_config passport_config_auth
     passport_avatar_flash passport_agent_model passport_agent passport_muse passport_muse_tools passport_speech passport_speech_http)

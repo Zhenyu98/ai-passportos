@@ -12,6 +12,11 @@
 
 ## Unreleased
 
+- Added idle screen sleep: after the idle timeout (two minutes by default) the backlight and panel turn off and rendering pauses while the clock and network keep running. Any button lights the screen without acting on the page. On the Muse firmware Wi-Fi uses modem sleep while the screen is off, and a pairing request or assistant reply lights it.
+- Changed brightness to ten levels from 10% to 100%. UP now brightens and DOWN dims, stopping at each end. `passport.brightness` accepts the same levels. Saved 30, 60 and 90 values stay valid; firmware older than this release treats any other saved level as a corrupt record, so set one of those three before downgrading.
+- Fixed Muse replies being lost with `REPLY TOO LONG`: a roughly 16 KB chat frame, unrelated to the reply's length, exceeded the session buffers and ended the session. The session buffers now hold it, paid for by allocating the USB line buffers and game state only while they are used.
+- Muse voice notes now go to the badge's own side chat, and the badge subscribes only to that chat.
+
 - Added the supplied 80-byte CW2017 profile for the specified 520 mAh cell, including content/update-flag checks, verified writes, the required restart sequence, and bounded SOC-readiness polling.
 
 - Expanded the environment bootstrap document: added Espressif's Git service mirror (`git.espressif.com.cn`) as the preferred mainland-China route for ESP-IDF v5.5.3 and its submodules, documented submodule long-wait/timeout handling, in-place repair, and the pinned-commit shallow fetch for large submodules such as `esp32-wifi-lib`, warned about stale per-repository Jihulab `insteadOf` residue, and added the official offline release archive as a last-resort fallback (learned from `esp-mosaico/esp-mosaico-vibe`).

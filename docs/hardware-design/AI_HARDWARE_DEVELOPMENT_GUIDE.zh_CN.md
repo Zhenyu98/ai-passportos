@@ -147,6 +147,8 @@ LVGL 最终输出的 RGB565 刷新区域会统一套用 30 px 圆角遮罩，因
 
 终端 deep sleep 前，应先阻止新页面任务，并持有 LVGL 锁等待当前 flush 完成。`bsp_display_prepare_deep_sleep()` 随后发送关闭显示和 Sleep In，将背光 PWM 停在低电平，设置 CS 为高电平，SCLK/MOSI/DC/背光为低电平，开启单引脚 hold 及 ESP32-C3 全局 deep-sleep hold。唤醒后 `bsp_display_init()` 会在 SPI 或 LEDC 接管前解除全局与单引脚 hold。该终端接口不是可恢复的息屏操作，调用后必须立即进入 deep sleep 或重启。
 
+需要可恢复的息屏时，先把背光设为 0，持有 LVGL 锁，调用 `bsp_lvgl_pause(true)` 冻结 LVGL 时钟，再调用 `bsp_display_power_save(true)` 发送 Sleep In。面板保留显存内容。唤醒时依次调用 `bsp_display_power_save(false)` 和 `bsp_lvgl_pause(false)`，最后恢复背光。每次面板调用阻塞约 100 ms。芯片仍在运行，因此只节省面板和背光的电流。
+
 LVGL 非线程安全：
 
 - LVGL 定时器回调运行在 LVGL 上下文，可直接操作对象。

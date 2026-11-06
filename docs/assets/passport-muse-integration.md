@@ -31,6 +31,23 @@ tests, Device tests and Unverified results separately.
 - The Agent page adds character state animation and optional streamed reply
   speech through a configured TTS endpoint. See [Agent voice setup](passport-agent-voice.md).
   Complete Muse account history is not synchronized.
+- Voice notes go to the badge's own Muse side chat rather than the main chat,
+  and the badge subscribes only to that chat. The conversation appears as a side
+  chat in the Muse app and keeps its own history.
+- Chat subscriptions can deliver frames of about 16 KB whatever the reply's
+  length: on device, an `approvals.snapshot` event listing recent approvals
+  arrives right after subscribing, even in a new side chat. The SDK's 12 KB session
+  buffers for this board cannot hold such a frame, and a larger frame ends the
+  session and loses the reply, so this build raises them to
+  16.6 KB and frees the difference from Passport's own RAM: the USB line buffers
+  and the game state are allocated only while used. Chat rows too long to show are
+  skipped and logged.
+- The screen turns off after the SDK's stored idle setting (`sleep_s`, 120 seconds
+  by default; 0 means never). Passport replaces the SDK's own UI, so it applies
+  that setting itself. While the screen is off, Wi-Fi drops to the SDK's
+  `MUSE_WIFI_REST` level, which keeps the association, network time and control
+  session with up to about a second of extra latency. See the
+  [user guide](passport-os-v0.1-user-guide.md) for what wakes the screen.
 
 The default ESP-IDF 5.5.3 project remains unchanged and buildable. It contains
 no Muse transport, so its assistant page reports that the Muse firmware is
@@ -264,7 +281,7 @@ Hold OK for two seconds on the badge, regardless of which bottom button is
 highlighted, to open the menu. On any other page the same hold returns to the
 badge. Menu rows, in order:
 
-1. **Display brightness** — cycles 30%, 60%, 90% and saves the value.
+1. **Display brightness** — UP/DOWN step from 10% to 100% in 10% steps and save the value.
 2. **About** — product, version and board.
 3. **Wi-Fi config** — see below.
 4. **Game** — the existing game page.
@@ -334,7 +351,7 @@ failure uses this shape:
 | Tool | Parameters | Behavior |
 | --- | --- | --- |
 | `passport.status` | none | Read the current device status. |
-| `passport.brightness` | `percent`: number, exactly 30, 60 or 90 | Queue a brightness change. |
+| `passport.brightness` | `percent`: number, a multiple of 10 from 10 to 100 | Queue a brightness change. |
 | `passport.note` | `text`: non-empty UTF-8 string, at most 255 bytes | Queue saving a local note. |
 | `passport.open` | `page`: one of `badge`, `agent`, `qr`, `menu`, `tasks`, `notes` | Queue opening a device page. |
 
@@ -343,7 +360,7 @@ failure uses this shape:
 This tool is read-only and returns the applied state:
 
 - `battery_percent`: number, or `null` when the battery reading is unavailable.
-- `brightness_percent`: the applied brightness, normally 30, 60 or 90.
+- `brightness_percent`: the applied brightness, a multiple of 10 from 10 to 100.
 - `page`: one of `badge`, `qr`, `menu`, `brightness`, `about`, `game`, `agent`,
   `tasks`, `notes`.
 
@@ -353,9 +370,9 @@ returned an invalid reading; it does not mean zero.
 
 ### `passport.brightness`
 
-- `percent` must be a JSON number with the exact value 30, 60 or 90. Decimal
+- `percent` must be a JSON number that is a multiple of 10 from 10 to 100. Decimal
   values, strings, `null` and other numbers are rejected with
-  `percent must be exactly 30, 60 or 90`.
+  `percent must be a multiple of 10 from 10 to 100`.
 - If the device input owner is stopped or its queue is full, the call fails with
   `Device is busy or stopping; command not accepted`.
 - A successful call only queues the change. The UI applies it and the
@@ -466,8 +483,8 @@ Unverified here:
 - The Muse firmware build, host tests and device behavior are reported
   separately; this page does not record a passing build.
 - Pairing, live Muse turns, reply latency, RAM headroom and peaks, microphone and
-  speaker quality, Wi-Fi coexistence, and the re-pairing recovery path require
-  on-device testing. Host tests are not hardware acceptance.
+  speaker quality, Wi-Fi coexistence, idle-screen current, and the re-pairing
+  recovery path require on-device testing. Host tests are not hardware acceptance.
 
 ## Troubleshooting
 
@@ -489,8 +506,6 @@ Unverified here:
 
 ## Related documents
 
-- [Passport Muse design](../superpowers/specs/2026-10-23-passport-muse-design.md)
-  and [implementation plan](../superpowers/plans/2026-10-23-passport-muse.md).
 - [AI PassportOS v0.1 user guide](passport-os-v0.1-user-guide.md) for the
   controls, profile, picture and USB protocol of the shared application.
 - [Firmware layout](../development/engineering/firmware-layout.md) for

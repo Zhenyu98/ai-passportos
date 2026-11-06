@@ -1,4 +1,5 @@
 #include "passport_store.h"
+#include "passport_model.h"
 #include <string.h>
 
 #define RECORD_HEADER 12
@@ -21,7 +22,7 @@ static uint32_t get32(const uint8_t *p) {
     return (uint32_t)p[0] | ((uint32_t)p[1]<<8) | ((uint32_t)p[2]<<16) | ((uint32_t)p[3]<<24);
 }
 static bool valid_record(const passport_record_t *r) {
-    return r && r->schema == 1 && (r->brightness == 30 || r->brightness == 60 || r->brightness == 90)
+    return r && r->schema == 1 && passport_brightness_valid(r->brightness)
         && passport_profile_validate(&r->profile);
 }
 static void encode_fields(uint8_t *dst, const passport_profile_t *p) {

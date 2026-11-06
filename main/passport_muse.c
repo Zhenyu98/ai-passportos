@@ -1,5 +1,6 @@
 #include "passport_agent.h"
 #include "passport_app.h"
+#include "passport_screen.h"
 #include "muse_board.h"
 #include "muse_chat.h"
 #include "muse_link.h"
@@ -32,6 +33,10 @@ void muse_app_run(const muse_board_t *board) {
     err=passport_app_start();
     if(err!=ESP_OK) ESP_LOGE("passport","Application startup failed: %s",esp_err_to_name(err));
 }
+/* The SDK's own UI normally applies this setting; Passport replaces that UI. */
+unsigned passport_screen_timeout_s(void) {return (unsigned)muse_settings_sleep_s();}
+/* Keeps the association, time sync and session, with up to a second of extra latency. */
+void passport_screen_power_save(bool on) {muse_wifi_power(on?MUSE_WIFI_REST:MUSE_WIFI_FULL);}
 static void clock_synced(struct timeval *now) {(void)now;passport_app_clock_synced();}
 /* The SDK creates esp_netif after Muse starts, so wait for the first address
  * before starting SNTP. lwIP then retries and renews (hourly) on its own;

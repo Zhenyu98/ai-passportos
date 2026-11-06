@@ -25,7 +25,8 @@ GROUPS = {
     "protocol": ["tests/test_passport_protocol.c", "main/passport_profile.c", "main/passport_protocol.c", "main/passport_json.c"],
     "usb": ["tests/test_passport_usb.c", "main/passport_profile.c", "main/passport_protocol.c", "main/passport_json.c"],
     "qr": ["tests/test_passport_qr.c", "main/passport_profile.c", "main/passport_qr.c"],
-    "runtime": ["tests/test_passport_runtime.c", "main/passport_model.c", "main/passport_profile.c", "main/passport_store.c"],
+    "screen": ["tests/test_passport_screen.c", "main/passport_screen.c"],
+    "runtime": ["tests/test_passport_runtime.c", "main/passport_model.c", "main/passport_profile.c", "main/passport_store.c", "main/passport_screen.c"],
     "settings": ["tests/test_passport_settings.c", "main/passport_settings.c", "main/passport_profile.c", "main/passport_json.c"],
     "media": ["tests/test_passport_media.c", "main/passport_scene.c"],
 }

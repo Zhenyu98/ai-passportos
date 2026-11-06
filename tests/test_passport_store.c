@@ -33,10 +33,22 @@ int main(void) {
     assert(strcmp(loaded.profile.homepage, candidate.profile.homepage) == 0);
     assert(memcmp(memory.data, "PASP", 4) == 0);
     passport_record_t before; memcpy(&before, &current, sizeof before);
-    candidate.brightness = 50;
     unsigned writes = memory.writes;
-    assert(passport_store_save(&backend, &current, &candidate) == PASSPORT_ERR_INVALID);
-    assert(memory.writes == writes && memcmp(&current, &before, sizeof current) == 0);
+    const uint8_t rejected[] = {0, 5, 55, 110, 255};
+    for (size_t i = 0; i < sizeof rejected; ++i) {
+        candidate.brightness = rejected[i];
+        assert(passport_store_save(&backend, &current, &candidate) == PASSPORT_ERR_INVALID);
+        assert(memory.writes == writes && memcmp(&current, &before, sizeof current) == 0);
+    }
+    /* All ten levels round-trip, including the three older firmware saved. */
+    for (unsigned level = 10; level <= 100; level += 10) {
+        candidate.brightness = (uint8_t)level;
+        assert(passport_store_save(&backend, &current, &candidate) == PASSPORT_OK);
+        assert(passport_store_load(&backend, &loaded) == PASSPORT_OK && loaded.brightness == level);
+    }
+    candidate.brightness = 60;
+    assert(passport_store_save(&backend, &current, &candidate) == PASSPORT_OK);
+    memcpy(&before, &current, sizeof before);
     candidate.brightness = 90; strcpy(candidate.profile.name, "Bob");
     memory.fail = true;
     assert(passport_store_save(&backend, &current, &candidate) == PASSPORT_ERR_STORAGE);

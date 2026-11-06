@@ -4,6 +4,7 @@
 #include "passport_config.h"
 #include "passport_nvs.h"
 #include "passport_protocol.h"
+#include "passport_screen.h"
 #include "passport_ui.h"
 #include "passport_usb.h"
 #include "passport_strings.h"
@@ -48,8 +49,10 @@ static const char *startup_status;
 static int cached_battery=-1;
 static atomic_int public_battery;
 static atomic_uint public_brightness,public_page;
-static passport_agent_model_t agent_snapshot;
+static passport_agent_status_t agent_snapshot;
 static uint32_t pressed_confirmation;
+static passport_screen_t screen;
+static passport_agent_state_t seen_agent_state;
 
 void passport_app_device_status(int *battery,unsigned *brightness,passport_page_t *page) {
     if(battery) *battery=atomic_load(&public_battery);
@@ -60,7 +63,7 @@ void passport_app_device_status(int *battery,unsigned *brightness,passport_page_
 void passport_app_clock_synced(void) {atomic_store(&clock_synced,true);}
 bool passport_app_remote_brightness(unsigned percent) {
     bool sent=false;atomic_fetch_add(&callback_count,1);
-    if(atomic_load(&input_ready) && (percent==30 || percent==60 || percent==90)) {
+    if(atomic_load(&input_ready) && passport_brightness_valid(percent)) {
         input_t input={.control=1,.value=percent};sent=xQueueSend(input_queue,&input,0)==pdTRUE;
     }
     atomic_fetch_sub(&callback_count,1);return sent;
@@ -219,16 +222,66 @@ static void start_config(void) {
         bsp_lvgl_unlock();
     }
 }
-static void render(void) {
+static void refresh_status(void) {
     passport_agent_set_visible(model.page==PASSPORT_PAGE_AGENT);
     atomic_store(&public_battery,cached_battery);
     atomic_store(&public_brightness,model.brightness);atomic_store(&public_page,(unsigned)model.page);
-    bool agent_updated=passport_agent_snapshot(&agent_snapshot);
+    (void)passport_agent_status(&agent_snapshot);
+}
+static void render(void) {
+    refresh_status();
     if(!bsp_lvgl_lock(100)) return;
-    if(agent_updated) passport_ui_agent_snapshot(&agent_snapshot);
+    (void)passport_agent_read(passport_ui_agent_snapshot); /* lock order: LVGL, then model */
     passport_ui_render(&model,&ui_record,cached_battery,
                        ui_time_valid,(int64_t)time(NULL));
     bsp_lvgl_unlock();
+}
+static void screen_sleep(void) {
+    if(!bsp_lvgl_lock(100)) return; /* a flush is running: retried on the next pass */
+    screen.off=true;
+    bsp_display_backlight(0);
+    esp_err_t paused=bsp_lvgl_pause(true);
+    esp_err_t panel=bsp_display_power_save(true);
+    bsp_lvgl_unlock();
+    if(paused!=ESP_OK || panel!=ESP_OK)
+        ESP_LOGW("passport","Screen sleep incomplete: LVGL %s, panel %s",esp_err_to_name(paused),esp_err_to_name(panel));
+    passport_model_reset_input(&model);
+    passport_screen_power_save(true);
+    ESP_LOGI("passport","Screen off");
+}
+static void screen_wake(uint64_t now) {
+    passport_screen_note_activity(&screen,now);
+    if(!screen.off) return;
+    screen.off=false;
+    /* LVGL is frozen, so nothing is flushing: a missed lock must not leave the screen dark. */
+    bool locked=bsp_lvgl_lock(1000);
+    esp_err_t panel=bsp_display_power_save(false);
+    esp_err_t resumed=bsp_lvgl_pause(false);
+    if(locked) bsp_lvgl_unlock();
+    if(panel!=ESP_OK || resumed!=ESP_OK)
+        ESP_LOGE("passport","Screen wake incomplete: panel %s, LVGL %s",esp_err_to_name(panel),esp_err_to_name(resumed));
+    render(); /* the clock and battery are current before the backlight returns */
+    bsp_display_backlight(model.brightness);
+    passport_screen_power_save(false);
+    ESP_LOGI("passport","Screen on");
+}
+static bool screen_keep_on(void) {
+    /* A reply that never arrives must not hold the screen on: waiting has no
+     * timeout, so it idles normally and the arriving reply wakes the screen. */
+    return passport_config_running() || agent_snapshot.state==PASSPORT_AGENT_CONFIRM ||
+        agent_snapshot.state==PASSPORT_AGENT_RECORDING ||
+        agent_snapshot.voice==PASSPORT_VOICE_PREPARING || agent_snapshot.voice==PASSPORT_VOICE_PLAYING;
+}
+static void screen_step(uint64_t now) {
+    passport_agent_state_t state=agent_snapshot.state;
+    bool arrived=state!=seen_agent_state && (state==PASSPORT_AGENT_REPLY || state==PASSPORT_AGENT_ERROR);
+    seen_agent_state=state;
+    if(arrived || screen_keep_on()) {screen_wake(now);return;}
+    if(!passport_screen_due(&screen,now,passport_screen_timeout_s())) return;
+    /* Also covers a game direction held through its own input path. A failed
+     * ADC reading counts as held. */
+    if(bsp_button_read_mv()<BSP_BTN_MV_RELEASED_MIN) {passport_screen_note_activity(&screen,now);return;}
+    screen_sleep();
 }
 static void action(passport_action_t result) {
     if(result==PASSPORT_ACTION_SAVE_BRIGHTNESS) {
@@ -274,6 +327,12 @@ static void input_step(uint64_t now) {
     if(atomic_exchange(&input_lost,false)) reset_input_until_release();
     input_t input;
     while(xQueueReceive(input_queue,&input,0)==pdTRUE) {
+        if(input.control) screen_wake(now);
+        else if(screen.off) {
+            /* A press only lights the screen, so a dark press cannot act or give consent. */
+            if(input.event==PASSPORT_KEY_PRESS) {screen_wake(now);passport_model_reset_input(&model);wait_release=true;}
+            continue;
+        }
         if(input.control==1) {
             model.brightness=(uint8_t)input.value;action(PASSPORT_ACTION_SAVE_BRIGHTNESS);continue;
         }
@@ -283,6 +342,7 @@ static void input_step(uint64_t now) {
             if(old_agent && model.page!=PASSPORT_PAGE_AGENT) (void)passport_agent_action(PASSPORT_AGENT_LEAVE,NULL);
             reset_input_until_release();break;
         }
+        passport_screen_note_activity(&screen,now);
         if(wait_release) {
             continue;
         }
@@ -298,14 +358,36 @@ static void input_step(uint64_t now) {
          * long-OK home shortcut. Game state lives outside LVGL, no lock. */
         if(model.page==PASSPORT_PAGE_GAME) passport_ui_game_key(input.key,input.event);
     }
-    if(!wait_release) action(passport_model_tick(&model,now));
+    if(!wait_release && !screen.off) action(passport_model_tick(&model,now));
     if(game_input_active && model.page!=PASSPORT_PAGE_GAME) reset_input_until_release();
     if(wait_release && bsp_button_read_mv()>=BSP_BTN_MV_RELEASED_MIN) wait_release=false;
-    bool game_now=model.page==PASSPORT_PAGE_GAME && !wait_release &&
+    bool game_now=model.page==PASSPORT_PAGE_GAME && !wait_release && !screen.off &&
         atomic_load(&input_ready) && !atomic_load(&stopping);
     if(game_input_active && !game_now) passport_ui_game_reset_input();
     game_input_active=game_now;
     bsp_button_set_combo_enabled(game_now);
+}
+static void update_step(uint64_t now) {
+    update_t update;
+    if(xQueueReceive(updates,&update,0)!=pdTRUE) return;
+    ui_record=update.record;ui_time_valid=update.time_valid;
+    /* The UI owns the newest level; a successful acknowledgement may describe
+     * an older press and must not step it back. Only a failed save reverts. */
+    if(update.status!=PASSPORT_OK) model.brightness=ui_record.brightness;
+    screen_wake(now); /* a saved change is acknowledged on screen */
+    bsp_display_backlight(model.brightness);
+    if(bsp_lvgl_lock(100)) {
+        passport_ui_status(update.status==PASSPORT_OK?PASSPORT_TEXT_STATUS_SAVED:PASSPORT_TEXT_STATUS_STORAGE_FAILED);
+        if(update.status==PASSPORT_OK) passport_ui_acknowledge();
+        bsp_lvgl_unlock();
+    }
+}
+static void refresh_step(uint64_t now) {
+    /* Render compares model/profile and changes only the header if unchanged.
+     * A dark screen draws nothing; status keeps flowing to Muse and the wake checks. */
+    if(screen.off) refresh_status();
+    else render();
+    screen_step(now);
 }
 static void ui_worker(void *user) {
     (void)user;
@@ -317,19 +399,9 @@ static void ui_worker(void *user) {
         if(battery_ready && (!last_battery || now-last_battery>=5000)) {
             cached_battery=bsp_battery_soc();last_battery=now;
         }
-        update_t update;
-        if(xQueueReceive(updates,&update,0)==pdTRUE) {
-            ui_record=update.record;ui_time_valid=update.time_valid;
-            model.brightness=ui_record.brightness;bsp_display_backlight(model.brightness);
-            if(bsp_lvgl_lock(100)) {
-                passport_ui_status(update.status==PASSPORT_OK?PASSPORT_TEXT_STATUS_SAVED:PASSPORT_TEXT_STATUS_STORAGE_FAILED);
-                if(update.status==PASSPORT_OK) passport_ui_acknowledge();
-                bsp_lvgl_unlock();
-            }
-        }
+        update_step(now);
         if(atomic_load(&clock_synced)) ui_time_valid=true;
-        /* Render compares model/profile and changes only the header if unchanged. */
-        if(now-last_render>=50) {render();last_render=now;}
+        if(now-last_render>=50) {refresh_step(now);last_render=now;}
         vTaskDelay(pdMS_TO_TICKS(10));
     }
     xSemaphoreGive(ui_exited);vTaskSuspend(NULL);
@@ -353,6 +425,7 @@ esp_err_t passport_app_start(void) {
     pressed_confirmation=0;
     atomic_store(&public_battery,-1);atomic_store(&public_brightness,60);atomic_store(&public_page,PASSPORT_PAGE_BADGE);
     time_valid=ui_time_valid=false;pending=false;game_input_active=false;startup_status=NULL;cached_battery=-1;
+    passport_screen_init(&screen,(uint64_t)esp_timer_get_time()/1000);seen_agent_state=agent_snapshot.state;
     input_queue=xQueueCreate(16,sizeof(input_t));core_queue=xQueueCreate(4,sizeof(job_t));
     updates=xQueueCreate(1,sizeof(update_t));
     core_exited=xSemaphoreCreateBinary();ui_exited=xSemaphoreCreateBinary();
@@ -426,6 +499,7 @@ esp_err_t passport_app_stop(void) {
         vTaskDelete(ui_task);ui_task=NULL;
     }
     bsp_button_set_combo_enabled(false); /* the UI owner can no longer re-enable it */
+    if(screen.off) screen_wake((uint64_t)esp_timer_get_time()/1000); /* LVGL must run for teardown */
     if(ui_created) {
         if(!bsp_lvgl_lock(1000)) return ESP_ERR_TIMEOUT;
         passport_ui_destroy();ui_created=false;bsp_lvgl_unlock();

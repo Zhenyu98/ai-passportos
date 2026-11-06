@@ -10,7 +10,8 @@ adapts to the avatar automatically: tall standing scenes use a left avatar
 column with the info list on the right; wide or near-square scenes use a large
 centered avatar with compact info below. Real avatars breathe with a soft
 opacity pulse; the built-in temporary avatar blinks. On the brightness page
-UP/DOWN cycles through 30%, 60%, 90% and the value persists. Hold OK for two
+UP brightens and DOWN dims in ten 10% steps from 10% to 100%, stopping at each
+end, and the value persists. Hold OK for two
 seconds on the badge to open the hidden menu; on any other page the same hold
 returns to the badge. Missing fields remain unset. The clock shows `--:--`
 until synchronized on each boot, then UTC+08:00; battery failures show `--%`.
@@ -18,6 +19,15 @@ The badge has no separately powered clock chip, so turning it off with the power
 button loses the time. The Muse firmware sets it again from network time servers
 once it joins Wi-Fi; the default firmware needs the USB `time` command or the
 phone-clock button on the configuration page.
+
+After two idle minutes the screen turns off to save power, the way a computer
+turns off only its display. The badge keeps running, so the clock, battery
+reading and any network connection continue. Pressing any button lights the
+screen again; that press only wakes it and does not act on the page. The screen
+also stays on while recording, playing speech, waiting for a pairing
+confirmation or serving the configuration page. On the Muse firmware a pairing
+request or an assistant reply lights it by itself, and Wi-Fi uses modem sleep
+while it is off, so messages may arrive up to about a second later.
 
 ## Assistant and hidden menu
 

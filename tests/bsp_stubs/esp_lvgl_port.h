@@ -25,6 +25,8 @@ esp_err_t lvgl_port_init(const lvgl_port_cfg_t *);
 esp_err_t lvgl_port_deinit(void);
 bool lvgl_port_lock(uint32_t);
 void lvgl_port_unlock(void);
+esp_err_t lvgl_port_stop(void);
+esp_err_t lvgl_port_resume(void);
 lv_display_t *lvgl_port_add_disp(const lvgl_port_display_cfg_t *);
 esp_err_t lvgl_port_remove_disp(lv_display_t *);
 void lv_display_add_event_cb(lv_display_t *, void (*)(lv_event_t *), int, void *);

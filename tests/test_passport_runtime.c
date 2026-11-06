@@ -12,7 +12,8 @@ esp_err_t passport_agent_start(const passport_agent_transport_t *t) {(void)t;ret
 esp_err_t passport_agent_stop(void) {return ESP_OK;}
 bool passport_agent_action(unsigned a,const char *t) {(void)t;agent_actions++;agent_last_action=a;return true;}
 bool passport_agent_confirm_pairing(uint32_t request) {assert(request==42);physical_confirmations++;return true;}
-bool passport_agent_snapshot(passport_agent_model_t *v) {(void)v;return false;}
+bool passport_agent_status(passport_agent_status_t *v) {(void)v;return false;}
+bool passport_agent_read(void (*read)(const passport_agent_model_t *)) {(void)read;return false;}
 void passport_agent_set_visible(bool value) {(void)value;}
 void passport_ui_agent_snapshot(const passport_agent_model_t *v) {(void)v;}
 void passport_ui_agent_scroll(int direction) {(void)direction;}
@@ -33,6 +34,16 @@ static bool schedule_input_during_stop;
 static bool check_remote_guard;
 static int last_backlight;
 static int64_t monotonic_us;
+static bool panel_asleep,lvgl_paused,radio_resting,fail_panel;
+static unsigned renders,screen_timeout_s=120;
+unsigned passport_screen_timeout_s(void) {return screen_timeout_s;}
+void passport_screen_power_save(bool on) {assert(on!=radio_resting);radio_resting=on;}
+esp_err_t bsp_display_power_save(bool enable) {
+    assert(enable!=panel_asleep);
+    if(fail_panel) return ESP_FAIL;
+    panel_asleep=enable;return ESP_OK;
+}
+esp_err_t bsp_lvgl_pause(bool pause) {assert(pause!=lvgl_paused);lvgl_paused=pause;return ESP_OK;}
 int passport_test_set_time(int64_t epoch) {(void)epoch;return 0;}
 bool passport_profile_glyphs_supported(const passport_profile_t *p,passport_glyph_fn fn,void *user) {(void)p;(void)fn;(void)user;return true;}
 QueueHandle_t xQueueCreate(UBaseType_t n,UBaseType_t size) {
@@ -85,7 +96,7 @@ esp_err_t bsp_battery_init(void) {return fail_battery?ESP_FAIL:ESP_OK;}
 int bsp_battery_soc(void) {return fail_battery?-1:80;}
 bool passport_ui_create(void) {return !fail_ui;}
 bool passport_ui_render(const passport_model_t *m,const passport_record_t *r,int battery,bool valid,int64_t epoch) {
-    (void)r;(void)battery;(void)valid;(void)epoch;rendered_page=m->page;return true;
+    (void)r;(void)battery;(void)valid;(void)epoch;rendered_page=m->page;renders++;return true;
 }
 void passport_ui_destroy(void) {}
 void passport_ui_status(const char *status) {(void)status;}
@@ -111,6 +122,144 @@ void passport_config_ssid(char *buffer,size_t size) {snprintf(buffer,size,"Badge
 void passport_avatar_flash_invalidate(void) {}
 void passport_image_flash_invalidate(void) {}
 static void stop_ready(void) { xSemaphoreGive(core_exited);xSemaphoreGive(ui_exited);assert(passport_app_stop()==ESP_OK);assert(!queues&&!semaphores&&!tasks&&!usb_started); }
+static uint64_t darken(uint64_t now) {
+    passport_screen_note_activity(&screen,now);
+    now+=(uint64_t)screen_timeout_s*1000;
+    screen_step(now);
+    assert(screen.off && last_backlight==0 && panel_asleep && lvgl_paused && radio_resting);
+    return now;
+}
+static void expect_lit(void) {
+    assert(!screen.off && last_backlight==model.brightness && !panel_asleep && !lvgl_paused && !radio_resting);
+}
+static void test_idle_screen(void) {
+    button_mv=3300;wait_release=false;game_input_active=false;passport_model_reset_input(&model);
+    memset(&agent_snapshot,0,sizeof agent_snapshot);seen_agent_state=agent_snapshot.state;
+    model.page=PASSPORT_PAGE_BADGE;model.brightness=60;last_backlight=60;
+    uint64_t now=1000000;
+    passport_screen_note_activity(&screen,now);
+    screen_step(now+119999);assert(!screen.off);
+    /* A physically held button restarts the idle time instead of darkening. */
+    button_mv=100;screen_step(now+120000);assert(!screen.off && screen.last_activity_ms==now+120000);
+    button_mv=3300;
+    now=darken(now+120000);
+
+    /* The dark screen draws nothing, while battery status stays available to Muse. */
+    unsigned drawn=renders;
+    cached_battery=77;refresh_step(now+50);
+    assert(renders==drawn && atomic_load(&public_battery)==77 && screen.off);
+
+    /* The first press only lights the screen; its release does nothing either. */
+    unsigned badge=model.badge_button;
+    button_mv=300;
+    assert(passport_app_post_input(PASSPORT_KEY_DOWN,PASSPORT_KEY_PRESS,now+60));
+    input_step(now+60);
+    expect_lit();assert(renders==drawn+1 && wait_release && model.held_key==-1);
+    /* Another key pressed before the first is released belongs to the same wake. */
+    assert(passport_app_post_input(PASSPORT_KEY_OK,PASSPORT_KEY_PRESS,now+70));
+    input_step(now+70);assert(model.held_key==-1 && wait_release);
+    assert(passport_app_post_input(PASSPORT_KEY_OK,PASSPORT_KEY_RELEASE,now+80));
+    input_step(now+80);assert(wait_release);
+    assert(passport_app_post_input(PASSPORT_KEY_DOWN,PASSPORT_KEY_RELEASE,now+90));
+    button_mv=3300;input_step(now+90);
+    assert(model.badge_button==badge && !wait_release);
+    /* The next ordinary click works and counts as activity. */
+    assert(passport_app_post_input(PASSPORT_KEY_DOWN,PASSPORT_KEY_PRESS,now+200));
+    assert(passport_app_post_input(PASSPORT_KEY_DOWN,PASSPORT_KEY_RELEASE,now+240));
+    input_step(now+240);
+    assert(model.badge_button==(badge^1u) && screen.last_activity_ms==now+240);
+
+    /* A release with no matching press stays dark, as when a key outlives the timeout. */
+    now=darken(now+240);
+    assert(passport_app_post_input(PASSPORT_KEY_OK,PASSPORT_KEY_RELEASE,now+10));
+    input_step(now+10);assert(screen.off && !wait_release);
+
+    /* A dark OK can never be consumed as pairing consent. */
+    unsigned consents=physical_confirmations;
+    model.page=PASSPORT_PAGE_AGENT;
+    agent_snapshot.state=PASSPORT_AGENT_CONFIRM;agent_snapshot.confirmation=42;
+    button_mv=595;
+    assert(passport_app_post_input(PASSPORT_KEY_OK,PASSPORT_KEY_PRESS,now+20));
+    input_step(now+20);
+    assert(passport_app_post_input(PASSPORT_KEY_OK,PASSPORT_KEY_RELEASE,now+60));
+    button_mv=3300;input_step(now+60);
+    expect_lit();assert(physical_confirmations==consents);
+
+    /* A pairing prompt wakes the screen by itself and holds it on. */
+    screen_step(now+9000000);expect_lit();
+    memset(&agent_snapshot,0,sizeof agent_snapshot);seen_agent_state=agent_snapshot.state;
+    now=darken(now+9000000);
+    agent_snapshot.state=PASSPORT_AGENT_CONFIRM;screen_step(now+50);expect_lit();
+    agent_snapshot.state=PASSPORT_AGENT_UNAVAILABLE;seen_agent_state=agent_snapshot.state;
+
+    /* Recording, speech and the configuration page all hold the screen on. */
+    agent_snapshot.state=PASSPORT_AGENT_RECORDING;seen_agent_state=agent_snapshot.state;
+    now+=1000000;screen_step(now);expect_lit();
+    agent_snapshot.state=PASSPORT_AGENT_READY;seen_agent_state=agent_snapshot.state;
+    agent_snapshot.voice=PASSPORT_VOICE_PLAYING;
+    now+=1000000;screen_step(now);expect_lit();
+    agent_snapshot.voice=PASSPORT_VOICE_DONE;
+    config_started=true;now+=1000000;screen_step(now);expect_lit();config_started=false;
+
+    /* Waiting has no timeout, so it may darken; the arriving reply lights it once. */
+    agent_snapshot.state=PASSPORT_AGENT_WAITING;seen_agent_state=agent_snapshot.state;
+    now=darken(now);
+    screen_step(now+50);assert(screen.off);
+    agent_snapshot.state=PASSPORT_AGENT_REPLY;screen_step(now+100);expect_lit();
+    now=darken(now+100); /* the unchanged reply does not wake it again */
+    screen_step(now+50);assert(screen.off);
+
+    /* Connection changes alone never wake it, so an unstable link cannot drain the battery. */
+    agent_snapshot.state=PASSPORT_AGENT_CONNECTING;screen_step(now+100);assert(screen.off);
+    agent_snapshot.state=PASSPORT_AGENT_OFFLINE;screen_step(now+150);assert(screen.off);
+    agent_snapshot.state=PASSPORT_AGENT_ERROR;screen_step(now+200);expect_lit();
+    seen_agent_state=agent_snapshot.state=PASSPORT_AGENT_READY;
+
+    /* Remote commands and saved changes light the screen before they apply. */
+    now=darken(now+200);
+    check_remote_guard=true;assert(passport_app_remote_brightness(90));check_remote_guard=false;
+    input_step(now+10);model.brightness=90;expect_lit();
+    xQueueReset(core_queue);model.brightness=60;bsp_display_backlight(60);
+    now=darken(now+10);
+    assert(passport_app_remote_page(PASSPORT_PAGE_BADGE));
+    input_step(now+10);expect_lit();assert(model.page==PASSPORT_PAGE_BADGE);
+    wait_release=false;button_mv=3300;
+    now=darken(now+10);
+    update_t saved={.record={.schema=1,.brightness=30},.status=PASSPORT_OK};
+    xQueueOverwrite(updates,&saved);update_step(now+10);
+    /* An acknowledgement for an older press does not step the level back... */
+    assert(model.brightness==60);expect_lit();
+    /* ...but a failed save reverts to what is actually stored. */
+    saved.status=PASSPORT_ERR_STORAGE;
+    xQueueOverwrite(updates,&saved);update_step(now+20);
+    assert(model.brightness==30 && last_backlight==30);
+    model.brightness=60;bsp_display_backlight(60);
+    /* Remote levels follow the same ten-step rule. */
+    check_remote_guard=true;
+    assert(!passport_app_remote_brightness(55) && !passport_app_remote_brightness(0) && !passport_app_remote_brightness(110));
+    assert(passport_app_remote_brightness(10));
+    check_remote_guard=false;
+    input_step(now+30);assert(model.brightness==10 && last_backlight==10);
+    xQueueReset(core_queue);model.brightness=60;bsp_display_backlight(60);
+
+    /* A busy LVGL task postpones darkening, and cannot block waking. */
+    passport_screen_note_activity(&screen,now);
+    fail_lock=true;screen_step(now+120000);assert(!screen.off && last_backlight==60);
+    fail_lock=false;screen_step(now+120010);assert(screen.off);
+    fail_lock=true;screen_wake(now+120020);expect_lit();fail_lock=false;
+
+    /* Zero disables the timer. */
+    screen_timeout_s=0;now+=9000000;passport_screen_note_activity(&screen,now);
+    screen_step(now+9000000);assert(!screen.off);screen_timeout_s=120;
+
+    /* A panel failure still restores the backlight and leaves the state consistent. */
+    now=darken(now);
+    fail_panel=true;screen_wake(now+10);fail_panel=false;
+    assert(!screen.off && last_backlight==60 && !lvgl_paused && !radio_resting && panel_asleep);
+    panel_asleep=false;
+    xQueueReset(input_queue);memset(&agent_snapshot,0,sizeof agent_snapshot);seen_agent_state=agent_snapshot.state;
+    model.page=PASSPORT_PAGE_BADGE;
+}
 int main(void) {
     for(unsigned i=1;i<=3;i++) {
         queue_calls=0;fail_queue_at=i;
@@ -216,11 +365,15 @@ int main(void) {
     assert(!update.time_valid && !time_valid);
     passport_app_clock_synced();core_step(&job);
     assert(time_valid && xQueueReceive(updates,&update,0) && update.time_valid);
+    test_idle_screen();
     unsigned live_queues=queues,live_semaphores=semaphores,live_tasks=tasks;
     schedule_input_during_stop=true;
     assert(passport_app_stop()==ESP_ERR_TIMEOUT);
     assert(queues==live_queues && semaphores==live_semaphores && tasks==live_tasks);
+    /* Stopping while dark restores LVGL and the panel before the UI is destroyed. */
+    screen_sleep();assert(screen.off && lvgl_paused && panel_asleep);
     stop_ready();
+    assert(!screen.off && !lvgl_paused && !panel_asleep && !radio_resting && last_backlight==model.brightness);
     assert(!combo_enabled);
     assert(passport_app_stop()==ESP_OK);
     assert(!passport_app_post_input(PASSPORT_KEY_OK,PASSPORT_KEY_PRESS,100));

@@ -8,11 +8,47 @@ import subprocess
 
 ROOT=Path(__file__).resolve().parents[1]
 MUSE_REV="e6fe5174092702ffddae6f90759a38d55a4ebae1"
+# The badge's own side chat. Muse scopes chats to the user's VM, so this is not a
+# secret; reusing one id across restarts keeps the same conversation.
+CHAT_SESSION="7c2e4b1a-5d3f-4e86-9a47-2f1c8b60d7e3"
 
 def replace_once(source,old,new):
     if source.count(old)!=1:
         raise ValueError("Pinned SDK patch anchor missing or ambiguous: "+old[:72])
     return source.replace(old,new,1)
+
+def patch_chat_session(priv,link):
+    """Send notes to, and subscribe only to, the badge's side chat.
+
+    The SDK's board port has no way to name a chat, so notes land in the main
+    chat and an unscoped subscription carries its traffic, including frames too
+    large for this board. The Linux client passes the same session_id field.
+    """
+    priv=replace_once(priv,'#define MUSE_HATCH_NOTE_HEAD \\\n    "{\\"message\\":\\"\\",',
+        '#define PASSPORT_CHAT_SESSION "'+CHAT_SESSION+'"\n'
+        '#define PASSPORT_CHAT_SUBSCRIBE "{\\"session_id\\":\\"" PASSPORT_CHAT_SESSION "\\"}"\n'
+        '#define MUSE_HATCH_NOTE_HEAD \\\n    "{\\"session_id\\":\\"" PASSPORT_CHAT_SESSION "\\",\\"message\\":\\"\\",')
+    link=replace_once(link,'muse_link_req_send(s_stream[RX_SUB], "{}", 2, true, SEND_WAIT_MS)',
+        'muse_link_req_send(s_stream[RX_SUB], PASSPORT_CHAT_SUBSCRIBE, sizeof(PASSPORT_CHAT_SUBSCRIBE) - 1, true, SEND_WAIT_MS)')
+    return priv,link
+
+def patch_session_buffers(noise):
+    """Hold a whole chat frame: 16424 bytes on the wire.
+
+    The SDK gives this board 12 KB because three 17 KB buffers left too little
+    beside its UI, but a larger frame cannot be skipped: it ends the session and
+    loses the reply. Passport frees the difference from its own static RAM.
+    """
+    noise=replace_once(noise,'#if SMALL_CONTROL_SESSION && CONFIG_MUSE_BOARD_AI_PASSPORT\n#define SVC_FRAME_SCRATCH (12 * 1024)',
+        '#if SMALL_CONTROL_SESSION && CONFIG_MUSE_BOARD_AI_PASSPORT\n#define SVC_FRAME_SCRATCH 16640')
+    return replace_once(noise,'#define WS_RX_BUF_SIZE (SVC_FRAME_SCRATCH + 1024)','#define WS_RX_BUF_SIZE (SVC_FRAME_SCRATCH + 64)')
+
+def patch_oversized_row_log(link):
+    """Say what an oversized chat row is; the session survives it now."""
+    return replace_once(link,'            if (n > ROW_MAX - rx->len) {\n                rx->overflow = s_skipped_big = true;',
+        '            if (n > ROW_MAX - rx->len) {\n'
+        '                ESP_LOGW(TAG, "skipping oversized chat row: %.120s", (const char *)data);\n'
+        '                rx->overflow = s_skipped_big = true;')
 
 def validate_output(path):
     build=Path(os.path.abspath(ROOT/"build"))
@@ -104,7 +140,7 @@ uint32_t passport_pairing_confirm_session(uint32_t expected) {
         '#include "passport_muse_tools.h"\n\nstatic char *build_register_json(void) {')
     s=replace_once(s,'    cJSON *commands = cJSON_CreateObject();',
         '    cJSON *commands = cJSON_CreateObject();\n    passport_muse_register(commands);')
-    noise.write_text(s,encoding="utf-8")
+    noise.write_text(patch_session_buffers(s),encoding="utf-8")
     cmake=output/"main/CMakeLists.txt";s=cmake.read_text(encoding="utf-8")
     s=replace_once(s,'idf_component_register(','list(APPEND GADGET_REQUIRES passport_app)\n\nidf_component_register(')
     cmake.write_text(s,encoding="utf-8")
@@ -127,6 +163,9 @@ static bool passport_ssid_utf8(const char *ssid) {
         "        if (ssid[0] == '\\0' || !passport_ssid_utf8(ssid)) continue;\n")
     wifi.write_text(s,encoding="utf-8")
     chat=output/"components/muse/muse_chat_link.c"
+    priv=output/"components/muse/muse_chat_priv.h"
+    patched_priv,patched_chat=patch_chat_session(priv.read_text(encoding="utf-8"),chat.read_text(encoding="utf-8"))
+    priv.write_text(patched_priv,encoding="utf-8");chat.write_text(patch_oversized_row_log(patched_chat),encoding="utf-8")
     with chat.open("a",encoding="utf-8") as f:
         f.write('\n/* Passport: called only by the owning voice worker. */\nvoid passport_muse_reply(char *out, size_t cap) { strlcpy(out, s_turn.text, cap); }\n')
     # GCC 15 (IDF 6) diagnoses format truncation more aggressively than the SDK's

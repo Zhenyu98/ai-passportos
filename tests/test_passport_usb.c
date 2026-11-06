@@ -82,8 +82,18 @@ int main(void) {
     if(!setjmp(worker_exit)) saved_worker(NULL);
     in_worker=false;
     assert(voice_commands==1 && service_calls==1 && strstr(outgoing,"PASSPORT/1 ") && strstr(outgoing,"Alice"));
+    assert(!s_reader); /* Nothing stays allocated once the host goes quiet. */
     assert(passport_usb_stop()==ESP_OK && !driver_installed);
-    assert(sem_created==sem_deleted && task_deleted==1);
+    /* A line split across reads survives, including one stopped part way. */
+    assert(passport_usb_start(service,NULL)==ESP_OK);
+    atomic_store(&s_stop_requested,false);
+    incoming="{\"id\":5,\"op\":\"get\"}\n{\"id\":6"; in_worker=true;
+    outgoing_size=0;service_calls=0;
+    if(!setjmp(worker_exit)) saved_worker(NULL);
+    in_worker=false;
+    assert(service_calls==1 && !s_reader);
+    assert(passport_usb_stop()==ESP_OK);
+    assert(sem_created==sem_deleted && task_deleted==2);
     assert(passport_usb_start(service,NULL)==ESP_OK);
     ack=false;
     assert(passport_usb_stop()==ESP_ERR_TIMEOUT);

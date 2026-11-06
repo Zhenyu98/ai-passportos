@@ -2,6 +2,17 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+/* Ten levels. Keep multiples of the step so records saved by older firmware
+ * (30, 60 or 90) stay valid. */
+#define PASSPORT_BRIGHTNESS_MIN 10u
+#define PASSPORT_BRIGHTNESS_MAX 100u
+#define PASSPORT_BRIGHTNESS_STEP 10u
+#define PASSPORT_BRIGHTNESS_DEFAULT 60u
+static inline bool passport_brightness_valid(unsigned percent) {
+    return percent>=PASSPORT_BRIGHTNESS_MIN && percent<=PASSPORT_BRIGHTNESS_MAX &&
+        percent%PASSPORT_BRIGHTNESS_STEP==0;
+}
+
 typedef enum {
     PASSPORT_PAGE_BADGE, PASSPORT_PAGE_PICTURE,
     PASSPORT_PAGE_MENU, PASSPORT_PAGE_BRIGHTNESS, PASSPORT_PAGE_ABOUT,

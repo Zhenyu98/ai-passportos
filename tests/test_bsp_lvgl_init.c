@@ -6,7 +6,7 @@
 
 static lv_display_t display;
 static int panel_present = 1, lock_depth, port_live, display_live, callback_live;
-static int fail_lock, fail_port, fail_display, fail_event, init_calls, unlocked_flushes;
+static int fail_lock, fail_port, fail_display, fail_event, init_calls, unlocked_flushes, port_paused;
 static int panel_token, io_token;
 esp_lcd_panel_handle_t bsp_display_panel(void) { return panel_present ? &panel_token : NULL; }
 esp_lcd_panel_io_handle_t bsp_display_io(void) { return &io_token; }
@@ -33,6 +33,8 @@ void lvgl_port_unlock(void) {
         ++unlocked_flushes;
     }
 }
+esp_err_t lvgl_port_stop(void) { assert(!port_paused); port_paused = 1; return ESP_OK; }
+esp_err_t lvgl_port_resume(void) { assert(port_paused); port_paused = 0; return ESP_OK; }
 lv_display_t *lvgl_port_add_disp(const lvgl_port_display_cfg_t *cfg) {
     assert(lock_depth > 0 && cfg->panel_handle == &panel_token && !display_live);
     assert(lvgl_port_lock(0)); // Real port takes and releases a recursive lock.
@@ -59,6 +61,7 @@ static void expect_failure(void) {
     assert(!bsp_lvgl_lock(0));
 }
 int main(void) {
+    assert(bsp_lvgl_pause(true) == ESP_ERR_INVALID_STATE && !port_paused); // Not ready yet.
     panel_present = 0; expect_failure(); panel_present = 1;
     fail_port = 1; expect_failure(); fail_port = 0;
     const int failed_init_calls = init_calls;
@@ -75,6 +78,8 @@ int main(void) {
     const int before = init_calls;
     assert(bsp_lvgl_init() == &display && init_calls == before);
     assert(bsp_lvgl_lock(5)); bsp_lvgl_unlock();
+    assert(bsp_lvgl_pause(true) == ESP_OK && port_paused);
+    assert(bsp_lvgl_pause(false) == ESP_OK && !port_paused);
     uint16_t pixels[BSP_LCD_W] = {0};
     for (int x = 0; x < BSP_LCD_W; ++x) pixels[x] = 0xffff;
     display.buffer = (lv_draw_buf_t){ .data = (uint8_t *)pixels, .header.stride = sizeof(pixels) };
